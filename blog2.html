@@ -226,13 +226,13 @@ We begin by importing all the requisite libraries to import and parse the datase
 </pre></div>
 
 
-<p><img alt="" src="https://imgur.com/EUdU9tW"></p>
+<p><img alt="" src="https://i.imgur.com/EUdU9tW.png"> </p>
 <p>Now, we will draw up a heatmap to better undsersand the intensity of correlation between the various variables. We will set annotations to True in order to better understand these correlations.</p>
 <div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">titanic</span><span class="o">.</span><span class="n">corr</span><span class="p">(),</span> <span class="n">annot</span> <span class="o">=</span> <span class="bp">True</span><span class="p">);</span>
 </pre></div>
 
 
-<p><img alt="" src="https://imgur.com/DEBzXfX"></p>
+<p><img alt="" src="https://i.imgur.com/DEBzXfX.png"></p>
 <p>There seems to be a faintly positive relationship between the ticket fare and survival rates.</p>
 <p>Next, we will explore the age distribution using the distplot. In order to do that, we'll first drop all the values in the age column with NaN values.</p>
 <div class="highlight"><pre><span></span><span class="n">titanic</span> <span class="o">=</span> <span class="n">titanic</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">])</span>
@@ -243,7 +243,7 @@ We begin by importing all the requisite libraries to import and parse the datase
 </pre></div>
 
 
-<p><img alt="" src="https://imgur.com/WJcIjLc"></p>
+<p><img alt="" src="https://i.imgur.com/WJcIjLc.png"></p>
 <p>It appears the majority of passengers were between 20 and 30 years of age, with the number of passengers in subsequent age brackets dropping progressively.  </p>
 <p>Let us now explore the ticket fare range for each passenger class using a boxplot. To make things easier to interpret, we will also increase the size of the figure.</p>
 <div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Pclass&quot;</span><span class="p">],</span> <span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Fare&quot;</span><span class="p">]);</span>
@@ -252,7 +252,7 @@ We begin by importing all the requisite libraries to import and parse the datase
 </pre></div>
 
 
-<p><img alt="" src="https://imgur.com/UWsvIrf"></p>
+<p><img alt="" src="https://i.imgur.com/UWsvIrf.png"></p>
 <p>Passenger class 1, to no one's surprise, has the highest and widest range of prices. A peculiar addition to that obvious finding would be a ticket that appears to have cost over $500. Let's see if we can find out someone who belongs to the early 20th century 1% club.</p>
 <div class="highlight"><pre><span></span><span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">][</span><span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Fare&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">]</span>
 </pre></div>
@@ -288,7 +288,7 @@ Name: Survived, dtype: int64
 </pre></div>
 
 
-<p><img alt="" src="https://imgur.com/GzhaWBy"></p>
+<p><img alt="" src="https://i.imgur.com/GzhaWBy.png"></p>
 <p>For those that did not make it, men tended to be, on average, older than the women. For those that survived, men, on average, were younger.</p>
 <p>These are just some of the countless ways seaborn can be used to conjure up exploratory visuals with minimal code. While this might not be the most suitable solution for more complex visualizations for presentation purposes, it's a nifty little tool to get started on some data-oriented detective work with such little effort.</p>
 <div class="highlight"><pre><span></span>
