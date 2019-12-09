@@ -248,11 +248,11 @@ We begin by importing all the requisite libraries to import and parse the datase
 <p>Let us now explore the ticket fare range for each passenger class using a boxplot. To make things easier to interpret, we will also increase the size of the figure.</p>
 <div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Pclass&quot;</span><span class="p">],</span> <span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Fare&quot;</span><span class="p">]);</span>
 
-<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">:(</span><span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">)})</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">:(</span><span class="mi">17</span><span class="p">,</span><span class="mi">8</span><span class="p">)})</span>
 </pre></div>
 
 
-<p><img alt="" src="https://i.imgur.com/UWsvIrf.png"></p>
+<p><img alt="" src="https://i.imgur.com/eD0jIPf.png"></p>
 <p>Passenger class 1, to no one's surprise, has the highest and widest range of prices. A peculiar addition to that obvious finding would be a ticket that appears to have cost over $500. Let's see if we can find out someone who belongs to the early 20th century 1% club.</p>
 <div class="highlight"><pre><span></span><span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">][</span><span class="n">titanic</span><span class="p">[</span><span class="s2">&quot;Fare&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">]</span>
 </pre></div>
