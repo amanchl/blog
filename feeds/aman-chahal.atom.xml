@@ -1,14 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>sumer - Aman Chahal</title><link href="https://amanchl.github.io/blog/" rel="alternate"></link><link href="https://amanchl.github.io/blog/feeds/aman-chahal.atom.xml" rel="self"></link><id>https://amanchl.github.io/blog/</id><updated>2020-01-25T13:10:00-05:00</updated><entry><title>Natural Poem Processing</title><link href="https://amanchl.github.io/blog/blog4.html" rel="alternate"></link><published>2020-01-25T13:10:00-05:00</published><updated>2020-01-25T13:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-25:/blog/blog4.html</id><summary type="html">&lt;h1&gt;Natural Poem Processing&lt;/h1&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>sumer - Aman Chahal</title><link href="https://amanchl.github.io/blog/" rel="alternate"></link><link href="https://amanchl.github.io/blog/feeds/aman-chahal.atom.xml" rel="self"></link><id>https://amanchl.github.io/blog/</id><updated>2020-02-02T07:40:00-05:00</updated><entry><title>Huey</title><link href="https://amanchl.github.io/blog/blog5.html" rel="alternate"></link><published>2020-02-02T07:40:00-05:00</published><updated>2020-02-02T07:40:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-02-02:/blog/blog5.html</id><summary type="html">&lt;p&gt;Today, I'll be covering a lightweight task queue package for Python called Huey. It's a neat little package for task execution at a given time or a specified delay. It's also quite handy for scheduling recurring tasks, automatically retrying failed tasks, as well as a host of other nifty features …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Today, I'll be covering a lightweight task queue package for Python called Huey. It's a neat little package for task execution at a given time or a specified delay. It's also quite handy for scheduling recurring tasks, automatically retrying failed tasks, as well as a host of other nifty features.&lt;/p&gt;
+&lt;p&gt;For this particular post, I'll be grabbing Apple stock prices in real time, and using Huey to update my data in real time. For this purpose, I will be using the Yahoo Finance API.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;yfinance&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;yf&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I'll now import the requisite packages and instantiate Huey. For this example, I will be using the Immediate Mode instead of a local Redis server or SQLite, but I will be updating this post later on and cover those features as well. In immediate mode, Huey will execute task functions immediately rather than queueing them, but it will preserve the behaviors  of a dedicated consumer process (not covered today).&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;huey&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;RedisHuey&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;crontab&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;huey&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;crontab&lt;/span&gt;
+
+&lt;span class="n"&gt;huey&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;RedisHuey&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my-app&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;immediate&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here, I will grab some Apple stocks data for the last 7 days on a refresh interval of 1 minute, and put it into a Pandas DataFrame, which I will iterate over with new data using Huey.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;yf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;download&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tickers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;AAPL&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="n"&gt;period&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;7d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="n"&gt;interval&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[*********************100%***********************]  1 of 1 completed&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tail&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div&gt;
+&lt;style scoped&gt;
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+&lt;/style&gt;
+&lt;table border="1" class="dataframe"&gt;
+  &lt;thead&gt;
+    &lt;tr style="text-align: right;"&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;Open&lt;/th&gt;
+      &lt;th&gt;High&lt;/th&gt;
+      &lt;th&gt;Low&lt;/th&gt;
+      &lt;th&gt;Close&lt;/th&gt;
+      &lt;th&gt;Adj Close&lt;/th&gt;
+      &lt;th&gt;Volume&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Datetime&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;th&gt;2020-01-31 15:55:00-05:00&lt;/th&gt;
+      &lt;td&gt;309.940002&lt;/td&gt;
+      &lt;td&gt;310.049988&lt;/td&gt;
+      &lt;td&gt;309.640015&lt;/td&gt;
+      &lt;td&gt;309.649994&lt;/td&gt;
+      &lt;td&gt;309.649994&lt;/td&gt;
+      &lt;td&gt;240384&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;2020-01-31 15:56:00-05:00&lt;/th&gt;
+      &lt;td&gt;309.640015&lt;/td&gt;
+      &lt;td&gt;309.670013&lt;/td&gt;
+      &lt;td&gt;309.170013&lt;/td&gt;
+      &lt;td&gt;309.429993&lt;/td&gt;
+      &lt;td&gt;309.429993&lt;/td&gt;
+      &lt;td&gt;327785&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;2020-01-31 15:57:00-05:00&lt;/th&gt;
+      &lt;td&gt;309.429993&lt;/td&gt;
+      &lt;td&gt;309.799988&lt;/td&gt;
+      &lt;td&gt;309.369995&lt;/td&gt;
+      &lt;td&gt;309.779999&lt;/td&gt;
+      &lt;td&gt;309.779999&lt;/td&gt;
+      &lt;td&gt;248953&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;2020-01-31 15:58:00-05:00&lt;/th&gt;
+      &lt;td&gt;309.779999&lt;/td&gt;
+      &lt;td&gt;309.809998&lt;/td&gt;
+      &lt;td&gt;309.559998&lt;/td&gt;
+      &lt;td&gt;309.649994&lt;/td&gt;
+      &lt;td&gt;309.649994&lt;/td&gt;
+      &lt;td&gt;314132&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;2020-01-31 15:59:00-05:00&lt;/th&gt;
+      &lt;td&gt;309.640015&lt;/td&gt;
+      &lt;td&gt;309.690002&lt;/td&gt;
+      &lt;td&gt;309.130005&lt;/td&gt;
+      &lt;td&gt;309.390015&lt;/td&gt;
+      &lt;td&gt;309.390015&lt;/td&gt;
+      &lt;td&gt;578890&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Below is a function that grabs Apple stock data from Yahoo Finance and concatenates it on top of the existing data.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;stocks&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;yfinance&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;yf&lt;/span&gt;
+    &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+    &lt;span class="n"&gt;newdata&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;yf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;download&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tickers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;AAPL&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;period&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;interval&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;final&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;newdata&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;final&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This Huey periodic task function carries out the function above each minute between 9AM and 4PM Monday through Friday. The time intervals can be changed depending on the use case.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nd"&gt;@huey&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;periodic_task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;crontab&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;minute&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;*/1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;hour&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;9-16&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;day_of_week&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;1-5&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update_stocks&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;stocks&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The task has been executed below. Once a local server has been integrated into this process, the task will recur each minute and update our stock data in real time.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;update_stocks&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[*********************100%***********************]  1 of 1 completed&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content><category term="misc"></category></entry><entry><title>Natural Poem Processing</title><link href="https://amanchl.github.io/blog/blog4.html" rel="alternate"></link><published>2020-01-25T13:10:00-05:00</published><updated>2020-01-25T13:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-25:/blog/blog4.html</id><summary type="html">&lt;h1&gt;Natural Poem Processing&lt;/h1&gt;
 &lt;p&gt;In this post, I will be scraping the works of three famous poets--William Wordsworth, John Milton, and Thomas Hardy--and running them through a natural language processing algorithm with the goal of identifying the author by feeding a poem into said algorithm.&lt;/p&gt;
 &lt;p&gt;Let's begin by importing the requisite …&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Natural Poem Processing&lt;/h1&gt;
 &lt;p&gt;In this post, I will be scraping the works of three famous poets--William Wordsworth, John Milton, and Thomas Hardy--and running them through a natural language processing algorithm with the goal of identifying the author by feeding a poem into said algorithm.&lt;/p&gt;
 &lt;p&gt;Let's begin by importing the requisite packages.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;gazpacho&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Soup&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;time&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;re&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;nltk&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;nltk.corpus&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;stopwords&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;nltk.stem.porter&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;PorterStemmer&lt;/span&gt;
@@ -23,9 +162,9 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[nltk_data] Downloading package stopwords to
-[nltk_data]     /Users/sunnychahal/nltk_data...
-[nltk_data]   Package stopwords is already up-to-date!
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;nltk_data&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;Downloading&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;package&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;stopwords&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;to&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;nltk_data&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt;     &lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;Users&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sunnychahal&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;nltk_data&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;nltk_data&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="n"&gt;Package&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;stopwords&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;is&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;already&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;up&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;to&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nc"&gt;date&lt;/span&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -49,65 +188,65 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[&amp;#39;https://www.poetryfoundation.org/poems/45512/character-of-the-happy-warrior&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45513/a-complaint&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45514/composed-upon-westminster-bridge-september-3-1802&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45516/elegiac-stanzas-suggested-by-a-picture-of-peele-castle-in-a-storm-painted-by-sir-george-beaumont&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45517/extempore-effusion-upon-the-death-of-james-hogg&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45518/the-french-revolution-as-it-appeared-to-enthusiasts-at-its-commencement&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45519/the-green-linnet&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45520/i-travelled-among-unknown-men&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45521/i-wandered-lonely-as-a-cloud&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45522/influence-of-natural-objects-in-calling-forth-and-strengthening-the-imagination-in-boyhood-and-early-youth&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45523/inside-of-kings-college-chapel-cambridge&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45524/it-is-a-beauteous-evening-calm-and-free&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45525/it-is-not-to-be-thought-of&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45526/laodamia&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45527/lines-composed-a-few-miles-above-tintern-abbey-on-revisiting-the-banks-of-the-wye-during-a-tour-july-13-1798&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/51001/lines-written-in-early-spring&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45528/london-1802&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45530/most-sweet-it-is&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45531/mutability&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45532/november-1806&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/52299/nuns-fret-not-at-their-convents-narrow-room&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45533/nutting&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45534/october-1803&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45536/ode-intimations-of-immortality-from-recollections-of-early-childhood&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45535/ode-to-duty&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45538/on-the-departure-of-sir-walter-scott-from-abbotsford-for-naples&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45539/on-the-extinction-of-the-venetian-republic&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45541/a-poet-he-hath-put-his-heart-to-school&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45540/the-power-of-armies-is-a-visible-thing&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45542/the-prelude-book-1-childhood-and-school-time&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45543/the-prelude-book-2-school-time-continued&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45545/resolution-and-independence&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45546/the-reverie-of-poor-susan&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45547/scorn-not-the-sonnet&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45548/september-1819&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45549/she-dwelt-among-the-untrodden-ways&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45550/she-was-a-phantom-of-delight&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45551/simon-lee-the-old-huntsman&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45552/the-simplon-pass&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45553/a-slumber-did-my-spirit-seal&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45554/the-solitary-reaper&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45555/song-at-the-feast-of-brougham-castle-upon-the-restoration-of-lord-clifford-the-shepherd-to-the-estates-and-honours-of-his-ancestors&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45556/sonnets-from-the-river-duddon-after-thought&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/50285/surprised-by-joy&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45557/the-tables-turned&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45558/there-was-a-boy&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/52996/the-thorn-56d231ea9f8d9&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45559/three-years-she-grew&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45560/to-a-highland-girl&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45561/to-a-skylark-56d225364d1a9&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45562/to-the-cuckoo&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45563/the-virgin&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/52298/we-are-seven&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/50397/why-art-thou-silent-is-thy-love-a-plant&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45564/the-world-is-too-much-with-us&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45565/written-in-london-september-1802&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45566/yarrow-revisited&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45568/yarrow-unvisited&amp;#39;,
- &amp;#39;https://www.poetryfoundation.org/poems/45567/yarrow-visited-september-1814&amp;#39;]
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[&amp;#39;https://www.poetryfoundation.org/poems/45512/character-of-the-happy-warrior&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45513/a-complaint&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45514/composed-upon-westminster-bridge-september-3-1802&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45516/elegiac-stanzas-suggested-by-a-picture-of-peele-castle-in-a-storm-painted-by-sir-george-beaumont&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45517/extempore-effusion-upon-the-death-of-james-hogg&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45518/the-french-revolution-as-it-appeared-to-enthusiasts-at-its-commencement&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45519/the-green-linnet&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45520/i-travelled-among-unknown-men&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45521/i-wandered-lonely-as-a-cloud&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45522/influence-of-natural-objects-in-calling-forth-and-strengthening-the-imagination-in-boyhood-and-early-youth&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45523/inside-of-kings-college-chapel-cambridge&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45524/it-is-a-beauteous-evening-calm-and-free&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45525/it-is-not-to-be-thought-of&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45526/laodamia&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45527/lines-composed-a-few-miles-above-tintern-abbey-on-revisiting-the-banks-of-the-wye-during-a-tour-july-13-1798&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/51001/lines-written-in-early-spring&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45528/london-1802&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45530/most-sweet-it-is&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45531/mutability&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45532/november-1806&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/52299/nuns-fret-not-at-their-convents-narrow-room&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45533/nutting&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45534/october-1803&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45536/ode-intimations-of-immortality-from-recollections-of-early-childhood&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45535/ode-to-duty&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45538/on-the-departure-of-sir-walter-scott-from-abbotsford-for-naples&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45539/on-the-extinction-of-the-venetian-republic&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45541/a-poet-he-hath-put-his-heart-to-school&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45540/the-power-of-armies-is-a-visible-thing&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45542/the-prelude-book-1-childhood-and-school-time&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45543/the-prelude-book-2-school-time-continued&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45545/resolution-and-independence&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45546/the-reverie-of-poor-susan&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45547/scorn-not-the-sonnet&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45548/september-1819&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45549/she-dwelt-among-the-untrodden-ways&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45550/she-was-a-phantom-of-delight&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45551/simon-lee-the-old-huntsman&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45552/the-simplon-pass&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45553/a-slumber-did-my-spirit-seal&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45554/the-solitary-reaper&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45555/song-at-the-feast-of-brougham-castle-upon-the-restoration-of-lord-clifford-the-shepherd-to-the-estates-and-honours-of-his-ancestors&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45556/sonnets-from-the-river-duddon-after-thought&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/50285/surprised-by-joy&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45557/the-tables-turned&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45558/there-was-a-boy&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/52996/the-thorn-56d231ea9f8d9&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45559/three-years-she-grew&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45560/to-a-highland-girl&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45561/to-a-skylark-56d225364d1a9&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45562/to-the-cuckoo&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45563/the-virgin&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/52298/we-are-seven&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/50397/why-art-thou-silent-is-thy-love-a-plant&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45564/the-world-is-too-much-with-us&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45565/written-in-london-september-1802&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45566/yarrow-revisited&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45568/yarrow-unvisited&amp;#39;,&lt;/span&gt;
+&lt;span class="err"&gt; &amp;#39;https://www.poetryfoundation.org/poems/45567/yarrow-visited-september-1814&amp;#39;]&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -376,11 +515,11 @@
 &lt;/div&gt;
 
 &lt;p&gt;The three dataframes will now be combined into one using the concatenate function in Pandas.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;milton&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;wordsworth&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;ignore_index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;milton&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;wordsworth&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;ignore_index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;final&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;df&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;hardy&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;ignore_index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;final&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;df&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;hardy&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;ignore_index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -475,7 +614,7 @@
 &lt;p&gt;The mapper will perform the previously defined poem_to_tokens function on top of each poem in the dataframe, and then the CountVectorizer in addition.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;mapper&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;DataFrameMapper&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;
     &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;poems&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;FunctionTransformer&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;poem_to_tokens&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;CountVectorizer&lt;/span&gt;&lt;span class="p"&gt;()])&lt;/span&gt;
-&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;df_out&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;df_out&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -488,21 +627,21 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/Users/sunnychahal/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:433: FutureWarning: Default solver will be changed to &amp;#39;lbfgs&amp;#39; in 0.22. Specify a solver to silence this warning.
-  FutureWarning)
-/Users/sunnychahal/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:460: FutureWarning: Default multi_class will be changed to &amp;#39;auto&amp;#39; in 0.22. Specify the multi_class option to silence this warning.
-  &amp;quot;this warning.&amp;quot;, FutureWarning)
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;Users&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sunnychahal&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;anaconda3&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;python3&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;packages&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sklearn&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;linear_model&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;logistic&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;433&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;FutureWarning&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;Default&lt;/span&gt; &lt;span class="n"&gt;solver&lt;/span&gt; &lt;span class="n"&gt;will&lt;/span&gt; &lt;span class="n"&gt;be&lt;/span&gt; &lt;span class="n"&gt;changed&lt;/span&gt; &lt;span class="k"&gt;to&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;lbfgs&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;22&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="n"&gt;Specify&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;solver&lt;/span&gt; &lt;span class="k"&gt;to&lt;/span&gt; &lt;span class="n"&gt;silence&lt;/span&gt; &lt;span class="n"&gt;this&lt;/span&gt; &lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+  &lt;span class="n"&gt;FutureWarning&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;Users&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sunnychahal&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;anaconda3&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;lib&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;python3&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;packages&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sklearn&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;linear_model&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;logistic&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;460&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;FutureWarning&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;Default&lt;/span&gt; &lt;span class="n"&gt;multi_class&lt;/span&gt; &lt;span class="n"&gt;will&lt;/span&gt; &lt;span class="n"&gt;be&lt;/span&gt; &lt;span class="n"&gt;changed&lt;/span&gt; &lt;span class="k"&gt;to&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;auto&amp;#39;&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;22&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="n"&gt;Specify&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;multi_class&lt;/span&gt; &lt;span class="k"&gt;option&lt;/span&gt; &lt;span class="k"&gt;to&lt;/span&gt; &lt;span class="n"&gt;silence&lt;/span&gt; &lt;span class="n"&gt;this&lt;/span&gt; &lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+  &lt;span class="ss"&gt;&amp;quot;this warning.&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;FutureWarning&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 
 
 
 
-Pipeline(memory=None,
-     steps=[(&amp;#39;dataframemapper&amp;#39;, DataFrameMapper(default=False, df_out=True,
-        features=[(&amp;#39;poems&amp;#39;, [FunctionTransformer(func=None), CountVectorizer(analyzer=&amp;#39;word&amp;#39;, binary=False, decode_error=&amp;#39;strict&amp;#39;,
-        dtype=&amp;lt;class &amp;#39;numpy.int64&amp;#39;&amp;gt;, encoding=&amp;#39;utf-8&amp;#39;, input=&amp;#39;content&amp;#39;,
-        lowercase=True, ma...penalty=&amp;#39;l2&amp;#39;, random_state=None, solver=&amp;#39;warn&amp;#39;,
-          tol=0.0001, verbose=0, warm_start=False))])
+&lt;span class="n"&gt;Pipeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;memory&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+     &lt;span class="n"&gt;steps&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;dataframemapper&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;DataFrameMapper&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;default&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;df_out&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;features&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;poems&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;FunctionTransformer&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;None&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;CountVectorizer&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;analyzer&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;word&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;binary&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decode_error&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;strict&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;numpy.int64&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;encoding&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;utf-8&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;input&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;content&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;lowercase&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ma&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;penalty&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;l2&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;random_state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;solver&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;warn&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+          &lt;span class="n"&gt;tol&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;0001&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;verbose&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;warm_start&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;False&lt;/span&gt;&lt;span class="p"&gt;))])&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -510,7 +649,7 @@ Pipeline(memory=None,
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1.0
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;1.0&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -518,7 +657,7 @@ Pipeline(memory=None,
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;0.8113207547169812
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;0.8113207547169812&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -532,20 +671,20 @@ Pipeline(memory=None,
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;array([&amp;#39;Milton&amp;#39;], dtype=object)
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;array([&amp;#39;Milton&amp;#39;], dtype=object)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Not too shabby, but the model could certainly use more complexity and nuance. So that was a basic NLP classification model that accepts a poem, and hopefully returns the name of its author.&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Renewable Energy and Ugly Data</title><link href="https://amanchl.github.io/blog/blog3.html" rel="alternate"></link><published>2020-01-04T11:10:00-05:00</published><updated>2020-01-04T11:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-04:/blog/blog3.html</id><summary type="html">&lt;h1&gt;Renewable Energy and Ugly Data&lt;/h1&gt;
 &lt;p&gt;In this post, we'll be borrowing a somewhat unflattering stacked bar chart from &lt;a href="https://www.bloomberg.com/opinion/articles/2019-10-23/coal-is-in-retreat-worldwide-as-renewable-energy-costs-drop"&gt;this&lt;/a&gt; particular Bloomberg article on the decline of coal power in the developed world as well as developing. We will be using Altair for this visualization exercise.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="" src="https://i.imgur.com/6lWl5SU.png"&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
 &lt;span class="kn"&gt;import …&lt;/span&gt;&lt;/pre&gt;&lt;/div&gt;</summary><content type="html">&lt;h1&gt;Renewable Energy and Ugly Data&lt;/h1&gt;
 &lt;p&gt;In this post, we'll be borrowing a somewhat unflattering stacked bar chart from &lt;a href="https://www.bloomberg.com/opinion/articles/2019-10-23/coal-is-in-retreat-worldwide-as-renewable-energy-costs-drop"&gt;this&lt;/a&gt; particular Bloomberg article on the decline of coal power in the developed world as well as developing. We will be using Altair for this visualization exercise.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="" src="https://i.imgur.com/6lWl5SU.png"&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;altair&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;alt&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;altair&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;alt&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -706,12 +845,12 @@ Pipeline(memory=None,
 &lt;p&gt;The legend seems a tad small in comparison to the chart so that's going to need some tweaking as well.&lt;/p&gt;
 &lt;p&gt;Finally, using tooltip, we'll add an interactive element to the chart wherein, simply by hovering your mouse pointer over an area of any bar, you will be able to see the corresponding country and its projected additional coal power generation capacity for that year.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Chart&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sea&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;width&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;800&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;height&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;500&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;New Coal Generator (in Megawatts) Construction in South East Asia By Year&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mark_bar&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;encode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Year&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Axis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;labelAngle&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt;
-    &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Capacity&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Axis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;&lt;span class="n"&gt;scale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Scale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;domain&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;])),&lt;/span&gt;
+    &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Year&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Axis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;labelAngle&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt;
+    &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Capacity&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Axis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;&lt;span class="n"&gt;scale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Scale&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;domain&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;])),&lt;/span&gt;
     &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Color&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Country&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;legend&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;alt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Legend&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Country&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;orient&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;right&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt;
     &lt;span class="n"&gt;tooltip&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Country&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Capacity&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
 &lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configure_axis&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;grid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;False&lt;/span&gt;
+    &lt;span class="n"&gt;grid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;False&lt;/span&gt;
 &lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configure_view&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;strokeOpacity&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configure_legend&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;clipHeight&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;labelFontSize&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;titleFontSize&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -769,9 +908,9 @@ Pipeline(memory=None,
 &lt;p&gt;While the Matplotlib library is the popular choice for presentation, in large part due to its customizability, Seaborn is perhaps a more suitable tool for quick exploratory analysis owing to its quick and nimble nature. Simple plots can be drawn up with one mere line of code, which frees up time and effort to divert cognitive resources to more pressing matters.&lt;/p&gt;
 &lt;p&gt;Let's explore one of the most popular datasets--Titanic--to explore the capabilities of Seaborn.
 We begin by importing all the requisite libraries to import and parse the dataset, as well as draw up a handful of seaborn plots.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;seaborn&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;sns&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;seaborn&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;sns&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -978,7 +1117,7 @@ We begin by importing all the requisite libraries to import and parse the datase
 
 &lt;p&gt;&lt;img alt="" src="https://i.imgur.com/EUdU9tW.png"&gt;&lt;/p&gt;
 &lt;p&gt;Now, we will draw up a heatmap to better undsersand the intensity of correlation between the various variables. We will set annotations to True in order to better understand these correlations.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sns&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;heatmap&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;titanic&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;corr&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;annot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;sns&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;heatmap&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;titanic&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;corr&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;annot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -1008,10 +1147,10 @@ We begin by importing all the requisite libraries to import and parse the datase
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;258                      Ward, Miss. Anna
-679    Cardeza, Mr. Thomas Drake Martinez
-737                Lesurer, Mr. Gustave J
-Name: Name, dtype: object
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;258                      Ward, Miss. Anna&lt;/span&gt;
+&lt;span class="err"&gt;679    Cardeza, Mr. Thomas Drake Martinez&lt;/span&gt;
+&lt;span class="err"&gt;737                Lesurer, Mr. Gustave J&lt;/span&gt;
+&lt;span class="c"&gt;Name: Name, dtype: object&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -1020,10 +1159,10 @@ Name: Name, dtype: object
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;258    1
-679    1
-737    1
-Name: Survived, dtype: int64
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;258    1&lt;/span&gt;
+&lt;span class="err"&gt;679    1&lt;/span&gt;
+&lt;span class="err"&gt;737    1&lt;/span&gt;
+&lt;span class="c"&gt;Name: Survived, dtype: int64&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -1035,4 +1174,4 @@ Name: Survived, dtype: int64
 
 &lt;p&gt;&lt;img alt="" src="https://i.imgur.com/GzhaWBy.png"&gt;&lt;/p&gt;
 &lt;p&gt;For those that did not make it, men tended to be, on average, older than the women. For those that survived, men, on average, were younger.&lt;/p&gt;
-&lt;p&gt;These are just some of the countless ways seaborn can be used to conjure up exploratory visuals with minimal code. While this might not be the most suitable solution for more complex visualizations for presentation purposes, it's a nifty little tool to get started on some data-oriented detective work with such little effort.&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>My First Blog Post!</title><link href="https://amanchl.github.io/blog/blog1.html" rel="alternate"></link><published>2019-09-12T10:30:00-04:00</published><updated>2019-09-12T10:30:00-04:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2019-09-12:/blog/blog1.html</id><summary type="html">&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vestibulum mattis ullamcorper velit sed ullamcorper jhgjgjgjmorbi tincidunt ornare massa. Cursus vitae congue mauris rhoncus. Pulvinar neque laoreet suspendisse interdum. Eu nisl nunc mi ipsum faucibus vitae. Sapien faucibus et molestie …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vestibulum mattis ullamcorper velit sed ullamcorper jhgjgjgjmorbi tincidunt ornare massa. Cursus vitae congue mauris rhoncus. Pulvinar neque laoreet suspendisse interdum. Eu nisl nunc mi ipsum faucibus vitae. Sapien faucibus et molestie ac feugiat sed lectus vestibulum mattis. Nibh tortor id aliquet lectus proin nibh nisl. Sit amet venenatis urna cursus eget. Amet consectetur adipiscing elit duis. Quam pellentesque nec nam aliquam sem et tortor. Congue nisi vitae suscipit tellus.&lt;/p&gt;</content><category term="misc"></category></entry></feed>
+&lt;p&gt;These are just some of the countless ways seaborn can be used to conjure up exploratory visuals with minimal code. While this might not be the most suitable solution for more complex visualizations for presentation purposes, it's a nifty little tool to get started on some data-oriented detective work with such little effort.&lt;/p&gt;</content><category term="misc"></category></entry></feed>

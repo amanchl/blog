@@ -19,9 +19,9 @@
 <p>While the Matplotlib library is the popular choice for presentation, in large part due to its customizability, Seaborn is perhaps a more suitable tool for quick exploratory analysis owing to its quick and nimble nature. Simple plots can be drawn up with one mere line of code, which frees up time and effort to divert cognitive resources to more pressing matters.</p>
 <p>Let's explore one of the most popular datasets--Titanic--to explore the capabilities of Seaborn.
 We begin by importing all the requisite libraries to import and parse the dataset, as well as draw up a handful of seaborn plots.</p>
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 </pre></div>
 
 
@@ -228,7 +228,7 @@ We begin by importing all the requisite libraries to import and parse the datase
 
 <p><img alt="" src="https://i.imgur.com/EUdU9tW.png"></p>
 <p>Now, we will draw up a heatmap to better undsersand the intensity of correlation between the various variables. We will set annotations to True in order to better understand these correlations.</p>
-<div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">titanic</span><span class="o">.</span><span class="n">corr</span><span class="p">(),</span> <span class="n">annot</span> <span class="o">=</span> <span class="bp">True</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">titanic</span><span class="o">.</span><span class="n">corr</span><span class="p">(),</span> <span class="n">annot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">);</span>
 </pre></div>
 
 
@@ -258,10 +258,10 @@ We begin by importing all the requisite libraries to import and parse the datase
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>258                      Ward, Miss. Anna
-679    Cardeza, Mr. Thomas Drake Martinez
-737                Lesurer, Mr. Gustave J
-Name: Name, dtype: object
+<div class="highlight"><pre><span></span><span class="err">258                      Ward, Miss. Anna</span>
+<span class="err">679    Cardeza, Mr. Thomas Drake Martinez</span>
+<span class="err">737                Lesurer, Mr. Gustave J</span>
+<span class="c">Name: Name, dtype: object</span>
 </pre></div>
 
 
@@ -270,10 +270,10 @@ Name: Name, dtype: object
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>258    1
-679    1
-737    1
-Name: Survived, dtype: int64
+<div class="highlight"><pre><span></span><span class="err">258    1</span>
+<span class="err">679    1</span>
+<span class="err">737    1</span>
+<span class="c">Name: Survived, dtype: int64</span>
 </pre></div>
 
 

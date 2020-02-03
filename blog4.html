@@ -19,9 +19,9 @@
 <p>Let's begin by importing the requisite packages.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gazpacho</span> <span class="kn">import</span> <span class="n">get</span><span class="p">,</span> <span class="n">Soup</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">nltk</span>
 <span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
 <span class="kn">from</span> <span class="nn">nltk.stem.porter</span> <span class="kn">import</span> <span class="n">PorterStemmer</span>
@@ -36,9 +36,9 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>[nltk_data] Downloading package stopwords to
-[nltk_data]     /Users/sunnychahal/nltk_data...
-[nltk_data]   Package stopwords is already up-to-date!
+<div class="highlight"><pre><span></span><span class="o">[</span><span class="n">nltk_data</span><span class="o">]</span><span class="w"> </span><span class="n">Downloading</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">stopwords</span><span class="w"> </span><span class="k">to</span><span class="w"></span>
+<span class="o">[</span><span class="n">nltk_data</span><span class="o">]</span><span class="w">     </span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">sunnychahal</span><span class="o">/</span><span class="n">nltk_data</span><span class="p">...</span><span class="w"></span>
+<span class="o">[</span><span class="n">nltk_data</span><span class="o">]</span><span class="w">   </span><span class="n">Package</span><span class="w"> </span><span class="n">stopwords</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">up</span><span class="o">-</span><span class="k">to</span><span class="o">-</span><span class="nc">date</span><span class="err">!</span><span class="w"></span>
 </pre></div>
 
 
@@ -62,65 +62,65 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>[&#39;https://www.poetryfoundation.org/poems/45512/character-of-the-happy-warrior&#39;,
- &#39;https://www.poetryfoundation.org/poems/45513/a-complaint&#39;,
- &#39;https://www.poetryfoundation.org/poems/45514/composed-upon-westminster-bridge-september-3-1802&#39;,
- &#39;https://www.poetryfoundation.org/poems/45516/elegiac-stanzas-suggested-by-a-picture-of-peele-castle-in-a-storm-painted-by-sir-george-beaumont&#39;,
- &#39;https://www.poetryfoundation.org/poems/45517/extempore-effusion-upon-the-death-of-james-hogg&#39;,
- &#39;https://www.poetryfoundation.org/poems/45518/the-french-revolution-as-it-appeared-to-enthusiasts-at-its-commencement&#39;,
- &#39;https://www.poetryfoundation.org/poems/45519/the-green-linnet&#39;,
- &#39;https://www.poetryfoundation.org/poems/45520/i-travelled-among-unknown-men&#39;,
- &#39;https://www.poetryfoundation.org/poems/45521/i-wandered-lonely-as-a-cloud&#39;,
- &#39;https://www.poetryfoundation.org/poems/45522/influence-of-natural-objects-in-calling-forth-and-strengthening-the-imagination-in-boyhood-and-early-youth&#39;,
- &#39;https://www.poetryfoundation.org/poems/45523/inside-of-kings-college-chapel-cambridge&#39;,
- &#39;https://www.poetryfoundation.org/poems/45524/it-is-a-beauteous-evening-calm-and-free&#39;,
- &#39;https://www.poetryfoundation.org/poems/45525/it-is-not-to-be-thought-of&#39;,
- &#39;https://www.poetryfoundation.org/poems/45526/laodamia&#39;,
- &#39;https://www.poetryfoundation.org/poems/45527/lines-composed-a-few-miles-above-tintern-abbey-on-revisiting-the-banks-of-the-wye-during-a-tour-july-13-1798&#39;,
- &#39;https://www.poetryfoundation.org/poems/51001/lines-written-in-early-spring&#39;,
- &#39;https://www.poetryfoundation.org/poems/45528/london-1802&#39;,
- &#39;https://www.poetryfoundation.org/poems/45530/most-sweet-it-is&#39;,
- &#39;https://www.poetryfoundation.org/poems/45531/mutability&#39;,
- &#39;https://www.poetryfoundation.org/poems/45532/november-1806&#39;,
- &#39;https://www.poetryfoundation.org/poems/52299/nuns-fret-not-at-their-convents-narrow-room&#39;,
- &#39;https://www.poetryfoundation.org/poems/45533/nutting&#39;,
- &#39;https://www.poetryfoundation.org/poems/45534/october-1803&#39;,
- &#39;https://www.poetryfoundation.org/poems/45536/ode-intimations-of-immortality-from-recollections-of-early-childhood&#39;,
- &#39;https://www.poetryfoundation.org/poems/45535/ode-to-duty&#39;,
- &#39;https://www.poetryfoundation.org/poems/45538/on-the-departure-of-sir-walter-scott-from-abbotsford-for-naples&#39;,
- &#39;https://www.poetryfoundation.org/poems/45539/on-the-extinction-of-the-venetian-republic&#39;,
- &#39;https://www.poetryfoundation.org/poems/45541/a-poet-he-hath-put-his-heart-to-school&#39;,
- &#39;https://www.poetryfoundation.org/poems/45540/the-power-of-armies-is-a-visible-thing&#39;,
- &#39;https://www.poetryfoundation.org/poems/45542/the-prelude-book-1-childhood-and-school-time&#39;,
- &#39;https://www.poetryfoundation.org/poems/45543/the-prelude-book-2-school-time-continued&#39;,
- &#39;https://www.poetryfoundation.org/poems/45545/resolution-and-independence&#39;,
- &#39;https://www.poetryfoundation.org/poems/45546/the-reverie-of-poor-susan&#39;,
- &#39;https://www.poetryfoundation.org/poems/45547/scorn-not-the-sonnet&#39;,
- &#39;https://www.poetryfoundation.org/poems/45548/september-1819&#39;,
- &#39;https://www.poetryfoundation.org/poems/45549/she-dwelt-among-the-untrodden-ways&#39;,
- &#39;https://www.poetryfoundation.org/poems/45550/she-was-a-phantom-of-delight&#39;,
- &#39;https://www.poetryfoundation.org/poems/45551/simon-lee-the-old-huntsman&#39;,
- &#39;https://www.poetryfoundation.org/poems/45552/the-simplon-pass&#39;,
- &#39;https://www.poetryfoundation.org/poems/45553/a-slumber-did-my-spirit-seal&#39;,
- &#39;https://www.poetryfoundation.org/poems/45554/the-solitary-reaper&#39;,
- &#39;https://www.poetryfoundation.org/poems/45555/song-at-the-feast-of-brougham-castle-upon-the-restoration-of-lord-clifford-the-shepherd-to-the-estates-and-honours-of-his-ancestors&#39;,
- &#39;https://www.poetryfoundation.org/poems/45556/sonnets-from-the-river-duddon-after-thought&#39;,
- &#39;https://www.poetryfoundation.org/poems/50285/surprised-by-joy&#39;,
- &#39;https://www.poetryfoundation.org/poems/45557/the-tables-turned&#39;,
- &#39;https://www.poetryfoundation.org/poems/45558/there-was-a-boy&#39;,
- &#39;https://www.poetryfoundation.org/poems/52996/the-thorn-56d231ea9f8d9&#39;,
- &#39;https://www.poetryfoundation.org/poems/45559/three-years-she-grew&#39;,
- &#39;https://www.poetryfoundation.org/poems/45560/to-a-highland-girl&#39;,
- &#39;https://www.poetryfoundation.org/poems/45561/to-a-skylark-56d225364d1a9&#39;,
- &#39;https://www.poetryfoundation.org/poems/45562/to-the-cuckoo&#39;,
- &#39;https://www.poetryfoundation.org/poems/45563/the-virgin&#39;,
- &#39;https://www.poetryfoundation.org/poems/52298/we-are-seven&#39;,
- &#39;https://www.poetryfoundation.org/poems/50397/why-art-thou-silent-is-thy-love-a-plant&#39;,
- &#39;https://www.poetryfoundation.org/poems/45564/the-world-is-too-much-with-us&#39;,
- &#39;https://www.poetryfoundation.org/poems/45565/written-in-london-september-1802&#39;,
- &#39;https://www.poetryfoundation.org/poems/45566/yarrow-revisited&#39;,
- &#39;https://www.poetryfoundation.org/poems/45568/yarrow-unvisited&#39;,
- &#39;https://www.poetryfoundation.org/poems/45567/yarrow-visited-september-1814&#39;]
+<div class="highlight"><pre><span></span><span class="err">[&#39;https://www.poetryfoundation.org/poems/45512/character-of-the-happy-warrior&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45513/a-complaint&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45514/composed-upon-westminster-bridge-september-3-1802&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45516/elegiac-stanzas-suggested-by-a-picture-of-peele-castle-in-a-storm-painted-by-sir-george-beaumont&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45517/extempore-effusion-upon-the-death-of-james-hogg&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45518/the-french-revolution-as-it-appeared-to-enthusiasts-at-its-commencement&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45519/the-green-linnet&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45520/i-travelled-among-unknown-men&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45521/i-wandered-lonely-as-a-cloud&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45522/influence-of-natural-objects-in-calling-forth-and-strengthening-the-imagination-in-boyhood-and-early-youth&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45523/inside-of-kings-college-chapel-cambridge&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45524/it-is-a-beauteous-evening-calm-and-free&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45525/it-is-not-to-be-thought-of&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45526/laodamia&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45527/lines-composed-a-few-miles-above-tintern-abbey-on-revisiting-the-banks-of-the-wye-during-a-tour-july-13-1798&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/51001/lines-written-in-early-spring&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45528/london-1802&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45530/most-sweet-it-is&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45531/mutability&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45532/november-1806&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/52299/nuns-fret-not-at-their-convents-narrow-room&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45533/nutting&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45534/october-1803&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45536/ode-intimations-of-immortality-from-recollections-of-early-childhood&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45535/ode-to-duty&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45538/on-the-departure-of-sir-walter-scott-from-abbotsford-for-naples&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45539/on-the-extinction-of-the-venetian-republic&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45541/a-poet-he-hath-put-his-heart-to-school&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45540/the-power-of-armies-is-a-visible-thing&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45542/the-prelude-book-1-childhood-and-school-time&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45543/the-prelude-book-2-school-time-continued&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45545/resolution-and-independence&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45546/the-reverie-of-poor-susan&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45547/scorn-not-the-sonnet&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45548/september-1819&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45549/she-dwelt-among-the-untrodden-ways&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45550/she-was-a-phantom-of-delight&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45551/simon-lee-the-old-huntsman&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45552/the-simplon-pass&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45553/a-slumber-did-my-spirit-seal&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45554/the-solitary-reaper&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45555/song-at-the-feast-of-brougham-castle-upon-the-restoration-of-lord-clifford-the-shepherd-to-the-estates-and-honours-of-his-ancestors&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45556/sonnets-from-the-river-duddon-after-thought&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/50285/surprised-by-joy&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45557/the-tables-turned&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45558/there-was-a-boy&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/52996/the-thorn-56d231ea9f8d9&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45559/three-years-she-grew&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45560/to-a-highland-girl&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45561/to-a-skylark-56d225364d1a9&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45562/to-the-cuckoo&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45563/the-virgin&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/52298/we-are-seven&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/50397/why-art-thou-silent-is-thy-love-a-plant&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45564/the-world-is-too-much-with-us&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45565/written-in-london-september-1802&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45566/yarrow-revisited&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45568/yarrow-unvisited&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45567/yarrow-visited-september-1814&#39;]</span>
 </pre></div>
 
 
@@ -389,11 +389,11 @@
 </div>
 
 <p>The three dataframes will now be combined into one using the concatenate function in Pandas.</p>
-<div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">milton</span><span class="p">,</span><span class="n">wordsworth</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">milton</span><span class="p">,</span><span class="n">wordsworth</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
 
-<div class="highlight"><pre><span></span><span class="n">final</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">hardy</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">final</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">hardy</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
 
@@ -488,7 +488,7 @@
 <p>The mapper will perform the previously defined poem_to_tokens function on top of each poem in the dataframe, and then the CountVectorizer in addition.</p>
 <div class="highlight"><pre><span></span><span class="n">mapper</span> <span class="o">=</span> <span class="n">DataFrameMapper</span><span class="p">([</span>
     <span class="p">(</span><span class="s1">&#39;poems&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">poem_to_tokens</span><span class="p">),</span> <span class="n">CountVectorizer</span><span class="p">()])</span>
-<span class="p">],</span> <span class="n">df_out</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="p">],</span> <span class="n">df_out</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
 
@@ -501,21 +501,21 @@
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>/Users/sunnychahal/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:433: FutureWarning: Default solver will be changed to &#39;lbfgs&#39; in 0.22. Specify a solver to silence this warning.
-  FutureWarning)
-/Users/sunnychahal/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:460: FutureWarning: Default multi_class will be changed to &#39;auto&#39; in 0.22. Specify the multi_class option to silence this warning.
-  &quot;this warning.&quot;, FutureWarning)
+<div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">sunnychahal</span><span class="o">/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">sklearn</span><span class="o">/</span><span class="n">linear_model</span><span class="o">/</span><span class="n">logistic</span><span class="p">.</span><span class="n">py</span><span class="p">:</span><span class="mi">433</span><span class="p">:</span> <span class="n">FutureWarning</span><span class="p">:</span> <span class="k">Default</span> <span class="n">solver</span> <span class="n">will</span> <span class="n">be</span> <span class="n">changed</span> <span class="k">to</span> <span class="s1">&#39;lbfgs&#39;</span> <span class="k">in</span> <span class="mi">0</span><span class="p">.</span><span class="mi">22</span><span class="p">.</span> <span class="n">Specify</span> <span class="n">a</span> <span class="n">solver</span> <span class="k">to</span> <span class="n">silence</span> <span class="n">this</span> <span class="n">warning</span><span class="p">.</span>
+  <span class="n">FutureWarning</span><span class="p">)</span>
+<span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">sunnychahal</span><span class="o">/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">sklearn</span><span class="o">/</span><span class="n">linear_model</span><span class="o">/</span><span class="n">logistic</span><span class="p">.</span><span class="n">py</span><span class="p">:</span><span class="mi">460</span><span class="p">:</span> <span class="n">FutureWarning</span><span class="p">:</span> <span class="k">Default</span> <span class="n">multi_class</span> <span class="n">will</span> <span class="n">be</span> <span class="n">changed</span> <span class="k">to</span> <span class="s1">&#39;auto&#39;</span> <span class="k">in</span> <span class="mi">0</span><span class="p">.</span><span class="mi">22</span><span class="p">.</span> <span class="n">Specify</span> <span class="n">the</span> <span class="n">multi_class</span> <span class="k">option</span> <span class="k">to</span> <span class="n">silence</span> <span class="n">this</span> <span class="n">warning</span><span class="p">.</span>
+  <span class="ss">&quot;this warning.&quot;</span><span class="p">,</span> <span class="n">FutureWarning</span><span class="p">)</span>
 
 
 
 
 
-Pipeline(memory=None,
-     steps=[(&#39;dataframemapper&#39;, DataFrameMapper(default=False, df_out=True,
-        features=[(&#39;poems&#39;, [FunctionTransformer(func=None), CountVectorizer(analyzer=&#39;word&#39;, binary=False, decode_error=&#39;strict&#39;,
-        dtype=&lt;class &#39;numpy.int64&#39;&gt;, encoding=&#39;utf-8&#39;, input=&#39;content&#39;,
-        lowercase=True, ma...penalty=&#39;l2&#39;, random_state=None, solver=&#39;warn&#39;,
-          tol=0.0001, verbose=0, warm_start=False))])
+<span class="n">Pipeline</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>
+     <span class="n">steps</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;dataframemapper&#39;</span><span class="p">,</span> <span class="n">DataFrameMapper</span><span class="p">(</span><span class="k">default</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">df_out</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;poems&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="k">None</span><span class="p">),</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">analyzer</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span> <span class="nb">binary</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">decode_error</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=&lt;</span><span class="k">class</span> <span class="s1">&#39;numpy.int64&#39;</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="k">input</span><span class="o">=</span><span class="s1">&#39;content&#39;</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">ma</span><span class="p">...</span><span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span>
+          <span class="n">tol</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">0001</span><span class="p">,</span> <span class="k">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">warm_start</span><span class="o">=</span><span class="k">False</span><span class="p">))])</span>
 </pre></div>
 
 
@@ -523,7 +523,7 @@ Pipeline(memory=None,
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>1.0
+<div class="highlight"><pre><span></span><span class="err">1.0</span>
 </pre></div>
 
 
@@ -531,7 +531,7 @@ Pipeline(memory=None,
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>0.8113207547169812
+<div class="highlight"><pre><span></span><span class="err">0.8113207547169812</span>
 </pre></div>
 
 
@@ -545,7 +545,7 @@ Pipeline(memory=None,
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>array([&#39;Milton&#39;], dtype=object)
+<div class="highlight"><pre><span></span><span class="err">array([&#39;Milton&#39;], dtype=object)</span>
 </pre></div>
 
 
