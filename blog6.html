@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <title>Scraping and IDG</title>
+ <!-- Latest compiled and minified CSS -->
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+ <div class="container">
+  <h1><a href=".">sumer</a></h1>
+ </div>
+</head>
+<body>
+ <div class="container">
+<div class="row">
+ <div class="col-md-8">
+  <h3>Scraping and IDG</h3>
+  <label>2020-02-22</label>
+  <h1>Scraping and Preparing Images for Deep Learning Models</h1>
+<p>Today, I'll be talking about my Capstone Project at General Assembly, and the tools and processes involved in sourcing the images, as well as importing, preprocessing, and augmenting them before throwing them into my model. So let's begin with the very first part of the project: web scraping.</p>
+<h2>Web Scraping</h2>
+<p>For this part of the project, I primarily used two tools: Selenium and Gazpacho.</p>
+<p><a href="https://pypi.org/project/selenium/">Selenium</a> integrates with WebDrivers such as Firefox and Chrome, and automates certain web browser tasks such as scrolling, clicking on certain buttons, and even logging into websites. Let's recreate the steps for installing, importing, and implementing Selenium.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">selenium</span>
+<span class="err">!</span><span class="n">brew</span> <span class="n">install</span> <span class="n">geckodriver</span>
+</pre></div>
+
+
+<p>The above code will download Selenium and Firefox WebDriver on to your machine. Now, let's import Selenium and automate scrolling on a Pinterest page.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">browser</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Firefox</span><span class="p">()</span>
+<span class="n">browser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://www.pinterest.ca/carpenter2457/mayan-artifacts/&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">500</span><span class="p">):</span>
+    <span class="n">browser</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">&quot;window.scrollTo(0, document.body.scrollHeight);&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Next, we'll be installing and importing <a href="https://pypi.org/project/gazpacho/">Gazpacho</a>, which is a web scraping package.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">gazpacho</span>
+<span class="kn">from</span> <span class="nn">gazpacho</span> <span class="kn">import</span> <span class="n">get</span><span class="p">,</span> <span class="n">Soup</span>
+</pre></div>
+
+
+<p>It's now time to grab all the HTML from Pinterest, so we can extract all the image URLs.</p>
+<div class="highlight"><pre><span></span><span class="n">soup</span> <span class="o">=</span> <span class="n">Soup</span><span class="p">(</span><span class="n">browser</span><span class="o">.</span><span class="n">page_source</span><span class="p">)</span>
+</pre></div>
+
+
+<p>It's typically quite straightforward to extract elements from HTML code using Gazpacho or Beautiful Soup, but Pinterest has thrown a jumble of nonsense our way, with image links hidden within. Luckily, they all begin with "https" and end with ".jpg" so we are going to make use of some RegEx to extract said links.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="n">mayan_images</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;https:\/\/[^&quot;]+?\.jpg&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">soup</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">mayan_images</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">686</span>
+</pre></div>
+
+
+<p>Taking a glance at the links, you'll notice that there is a fair amount of repetition in results, which might simply be a Pinterest specific issue. In order to remedy this, we will quickly throw our links into a Pandas DataFrame and extract all the unique links into a list.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">mayan_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">mayan_images</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">mayan_urls</span> <span class="o">=</span> <span class="n">mayan_df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">mayan_urls</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">435</span>
+</pre></div>
+
+
+<p>Finally, it's time to download the images from extracted URLs and put them on to our machine. For this purpose, we'll be using a package called <a href="https://pypi.org/project/urllib3/">urllib3</a>. Before actually downloading the images, we will have to create a new folder where the images will be downloaded and stored.</p>
+<p>We will only be downloading odd-numbered images from the URL list, as there is again some degree of repetition, wherein the same image gets downloaded in two different sizes. We are only going to download and store the larger ones.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">urllib</span>
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">mayan_urls</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;/Users/user/Mayan Artifacts/mayan{mayan_urls.index(url)}.jpg&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+
+<p>That's it for web scraping. Let's move on to the next section now.</p>
+<h2>ImageDataGenerator</h2>
+<p>Once we have our images on our machine, we then have to import them into Python, preprocess them, split the data into training and validation sets, and even augment it in certain cases. For this purpose, the most accessible tool is ImageDataGenerator. Let's import it and see what it can do.</p>
+<div class="highlight"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">keras</span>
+<span class="kn">from</span> <span class="nn">keras.preprocessing.image</span> <span class="kn">import</span> <span class="n">ImageDataGenerator</span>
+</pre></div>
+
+
+<p>Before importing our images through IDG, we first have to rescale them so as to reduce the range of input pixels from [0, 255] to [0, 1]. Then we will specify the training set and validation set sizes for the training-validation split. Lastly, will throw in some augmentation arguments such as zoom_rage, vertial_flip, horizontal_flip, brightness, etc. In this instance, we will only be using zoom_rage argument.</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">ImageDataGenerator</span><span class="p">(</span><span class="n">rescale</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                             <span class="n">rotation_range</span> <span class="o">=</span> <span class="mi">75</span><span class="p">,</span>
+                             <span class="n">zoom_range</span><span class="o">=</span><span class="p">[</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Disclaimer: It's always a great idea to put your images inside an appropriately named folder, and then to put that folder inside another parent ("Data") folder. That way, IDG can automatically recognize different folders as separate classes.</p>
+<p>We will be importing the training data first, with image size as 128x128, color mode as RBG, class mode as binary, and a batch size of 32.</p>
+<div class="highlight"><pre><span></span><span class="n">training</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">flow_from_directory</span><span class="p">(</span><span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;/Users/user/Data&quot;</span><span class="p">,</span>
+                                   <span class="n">target_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">),</span>
+                                   <span class="n">color_mode</span><span class="o">=</span><span class="s1">&#39;rgb&#39;</span><span class="p">,</span>                                     
+                                   <span class="n">class_mode</span> <span class="o">=</span> <span class="s2">&quot;binary&quot;</span><span class="p">,</span>
+                                   <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                                   <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;training&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Found 150 images belonging to 1 classes.</span>
+</pre></div>
+
+
+<p>Let's now repeat the process for the validation data.</p>
+<div class="highlight"><pre><span></span><span class="n">validation</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">flow_from_directory</span><span class="p">(</span><span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;/Users/user/Data&quot;</span><span class="p">,</span>
+                                   <span class="n">target_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">),</span>
+                                   <span class="n">color_mode</span><span class="o">=</span><span class="s1">&#39;rgb&#39;</span><span class="p">,</span>
+                                   <span class="n">class_mode</span> <span class="o">=</span> <span class="s2">&quot;binary&quot;</span><span class="p">,</span>
+                                   <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+                                   <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;validation&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Found 64 images belonging to 1 classes.</span>
+</pre></div>
+
+
+<p>We will plot one of the images using matplotlib below, to see if our process worked.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.image</span> <span class="kn">import</span> <span class="n">imread</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">training</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+
+
+<p><img alt="png" src="output_33_0.png"></p>
+<p>And that's about it. That's how your scrape, import, preprocess, split, and augment image data in Python. Hope this post was informative!</p>
+ </div>
+</div>
+ </div>
+</body>
+</html>
