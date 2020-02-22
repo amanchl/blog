@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>sumer | Natural Poem Processing</title>
+    <link rel="shortcut icon" type="image/png" href="./favicon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+    <link href="https://amanchl.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Full Atom Feed" />
+    <link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Categories Atom Feed" />
+    <link rel="stylesheet" href="./theme/css/screen.css" type="text/css" />
+    <link rel="stylesheet" href="./theme/css/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="./theme/css/print.css" type="text/css" media="print" />
+    <meta name="generator" content="Pelican" />
+    <meta name="description" content="" />
+    <meta name="author" content="Aman Chahal" />
+
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="./">Home</a></li>
+            </ul>
+        </nav>
+        <div class="header_box">
+            <h1><a href="./">sumer</a></h1>
+        </div>
+    </header>
+    <div id="wrapper">
+        <div id="content">            <h4 class="date">Jan 25, 2020</h4>
+
+            <article class="post">
+                <h2 class="title">
+                    <a href="./blog4.html" rel="bookmark" title="Permanent Link to &quot;Natural Poem Processing&quot;">Natural Poem Processing</a>
+                </h2>
+
+                
+                
+
+                <h1>Natural Poem Processing</h1>
+<p>In this post, I will be scraping the works of three famous poets--William Wordsworth, John Milton, and Thomas Hardy--and running them through a natural language processing algorithm with the goal of identifying the author by feeding a poem into said algorithm.</p>
+<p>Let's begin by importing the requisite packages.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gazpacho</span> <span class="kn">import</span> <span class="n">get</span><span class="p">,</span> <span class="n">Soup</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.stem.porter</span> <span class="kn">import</span> <span class="n">PorterStemmer</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">RegexpTokenizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn_pandas</span> <span class="kn">import</span> <span class="n">DataFrameMapper</span><span class="p">,</span> <span class="n">FunctionTransformer</span>
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;stopwords&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">[</span><span class="n">nltk_data</span><span class="o">]</span><span class="w"> </span><span class="n">Downloading</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="n">stopwords</span><span class="w"> </span><span class="k">to</span><span class="w"></span>
+<span class="o">[</span><span class="n">nltk_data</span><span class="o">]</span><span class="w">     </span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">sunnychahal</span><span class="o">/</span><span class="n">nltk_data</span><span class="p">...</span><span class="w"></span>
+<span class="o">[</span><span class="n">nltk_data</span><span class="o">]</span><span class="w">   </span><span class="n">Package</span><span class="w"> </span><span class="n">stopwords</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">up</span><span class="o">-</span><span class="k">to</span><span class="o">-</span><span class="nc">date</span><span class="err">!</span><span class="w"></span>
+</pre></div>
+
+
+<p>I will be sourcing my corpus data from the Poetry Foundation website using Gazpacho--a web scraping library developed by <a href="https://github.com/maxhumber">Max Humber</a>. The scraping process is fairly simple, as there aren't many inconsistencies in the HTML code. I'll be scraping the individual poem URL for each poem on each poet's page, and adding it to a URL list. This list will then be fed into a custom scraping function in order to scrape a list of poems from each author.</p>
+<div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.poetryfoundation.org/poets/william-wordsworth&#39;</span>
+
+<span class="n">html</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">Soup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+<span class="n">poems</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ul&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s2">&quot;o-graphBlocks o-graphBlocks_matrix o-graphBlocks_3up@small o-graphBlocks_4up@medium o-graphBlocks_matrix_obscuredAfter12&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+<span class="n">url_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poem</span> <span class="ow">in</span> <span class="n">poems</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">url_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+
+<p>Below is a list of all the scraped URLs for William Wordsworth.</p>
+<div class="highlight"><pre><span></span><span class="n">url_list</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">[&#39;https://www.poetryfoundation.org/poems/45512/character-of-the-happy-warrior&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45513/a-complaint&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45514/composed-upon-westminster-bridge-september-3-1802&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45516/elegiac-stanzas-suggested-by-a-picture-of-peele-castle-in-a-storm-painted-by-sir-george-beaumont&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45517/extempore-effusion-upon-the-death-of-james-hogg&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45518/the-french-revolution-as-it-appeared-to-enthusiasts-at-its-commencement&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45519/the-green-linnet&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45520/i-travelled-among-unknown-men&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45521/i-wandered-lonely-as-a-cloud&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45522/influence-of-natural-objects-in-calling-forth-and-strengthening-the-imagination-in-boyhood-and-early-youth&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45523/inside-of-kings-college-chapel-cambridge&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45524/it-is-a-beauteous-evening-calm-and-free&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45525/it-is-not-to-be-thought-of&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45526/laodamia&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45527/lines-composed-a-few-miles-above-tintern-abbey-on-revisiting-the-banks-of-the-wye-during-a-tour-july-13-1798&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/51001/lines-written-in-early-spring&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45528/london-1802&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45530/most-sweet-it-is&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45531/mutability&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45532/november-1806&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/52299/nuns-fret-not-at-their-convents-narrow-room&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45533/nutting&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45534/october-1803&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45536/ode-intimations-of-immortality-from-recollections-of-early-childhood&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45535/ode-to-duty&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45538/on-the-departure-of-sir-walter-scott-from-abbotsford-for-naples&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45539/on-the-extinction-of-the-venetian-republic&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45541/a-poet-he-hath-put-his-heart-to-school&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45540/the-power-of-armies-is-a-visible-thing&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45542/the-prelude-book-1-childhood-and-school-time&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45543/the-prelude-book-2-school-time-continued&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45545/resolution-and-independence&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45546/the-reverie-of-poor-susan&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45547/scorn-not-the-sonnet&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45548/september-1819&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45549/she-dwelt-among-the-untrodden-ways&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45550/she-was-a-phantom-of-delight&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45551/simon-lee-the-old-huntsman&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45552/the-simplon-pass&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45553/a-slumber-did-my-spirit-seal&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45554/the-solitary-reaper&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45555/song-at-the-feast-of-brougham-castle-upon-the-restoration-of-lord-clifford-the-shepherd-to-the-estates-and-honours-of-his-ancestors&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45556/sonnets-from-the-river-duddon-after-thought&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/50285/surprised-by-joy&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45557/the-tables-turned&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45558/there-was-a-boy&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/52996/the-thorn-56d231ea9f8d9&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45559/three-years-she-grew&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45560/to-a-highland-girl&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45561/to-a-skylark-56d225364d1a9&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45562/to-the-cuckoo&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45563/the-virgin&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/52298/we-are-seven&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/50397/why-art-thou-silent-is-thy-love-a-plant&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45564/the-world-is-too-much-with-us&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45565/written-in-london-september-1802&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45566/yarrow-revisited&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45568/yarrow-unvisited&#39;,</span>
+<span class="err"> &#39;https://www.poetryfoundation.org/poems/45567/yarrow-visited-september-1814&#39;]</span>
+</pre></div>
+
+
+<p>At this stage, I will define a scrape_poem function to use the previously extracted list of URLs and source the poem text from each poem's page for Wordsworth. In order to remove all the unnecessary code, I'll add the remove_tags() method to derive the final poem text.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">scrape_poem</span><span class="p">(</span><span class="n">poemurl</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">poemurl</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">Soup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;div&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;o-poem &#39;</span><span class="p">})</span><span class="o">.</span><span class="n">remove_tags</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Next, I'll run a for loop and use the previously defined function to create a new list with all of Wordsworth's poems.</p>
+<div class="highlight"><pre><span></span><span class="n">wordsworth_poems_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">wordsworth_poems_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scrape_poem</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+</pre></div>
+
+
+<p>The extracted poems have some textual inconsistencies and errors, so those will be handled with a simple regex fuction, which acts much like the regular replace method.</p>
+<div class="highlight"><pre><span></span><span class="n">wordsworth_poems</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poem</span> <span class="ow">in</span> <span class="n">wordsworth_poems_list</span><span class="p">:</span>
+    <span class="n">poem</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z])&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; \1&quot;</span><span class="p">,</span> <span class="n">poem</span><span class="p">)</span>
+    <span class="n">wordsworth_poems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poem</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Finally, the cleaned list of poems will be fitted into a Pandas dataframe with two columns--poems and author.</p>
+<div class="highlight"><pre><span></span><span class="n">wordsworth</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">wordsworth_poems</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;poems&#39;</span><span class="p">])</span>
+<span class="n">wordsworth</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Wordsworth&#39;</span>
+<span class="n">wordsworth</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>poems</th>
+      <th>author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Who is the happy  Warrior?  Who is he That ev...</td>
+      <td>Wordsworth</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>There is a change—and  I am poor;  Your love ...</td>
+      <td>Wordsworth</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Earth has not any thing to show more fair:  D...</td>
+      <td>Wordsworth</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>I was thy neighbour once, thou rugged  Pile! ...</td>
+      <td>Wordsworth</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>When first, descending from the moorlands,  I...</td>
+      <td>Wordsworth</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>The entire process will now be repeated for John Milton and Thomas Hardy.</p>
+<div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.poetryfoundation.org/poets/john-milton&#39;</span>
+
+<span class="n">html</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">Soup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+<span class="n">poems</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ul&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s2">&quot;o-graphBlocks o-graphBlocks_matrix o-graphBlocks_3up@small o-graphBlocks_4up@medium o-graphBlocks_matrix_obscuredAfter12&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+<span class="n">url_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poem</span> <span class="ow">in</span> <span class="n">poems</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">url_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">milton_poems_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">milton_poems_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scrape_poem</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">milton_poems</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poem</span> <span class="ow">in</span> <span class="n">milton_poems_list</span><span class="p">:</span>
+    <span class="n">poem</span> <span class="o">=</span> <span class="n">poem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">milton_poems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poem</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">milton</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">milton_poems</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;poems&#39;</span><span class="p">])</span>
+<span class="n">milton</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Milton&#39;</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">milton</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>poems</th>
+      <th>author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Blest pair of Sirens, pledges of Heav'ns joy, ...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Hail native language, that by sinews weak Dids...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Hence vain deluding Joys, The brood of Folly w...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Hence loathed Melancholy, Of Cerberus, and bla...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Yet once more, O ye laurels, and once more Ye ...</td>
+      <td>Milton</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://www.poetryfoundation.org/poets/thomas-hardy&#39;</span>
+
+<span class="n">html</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">Soup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+<span class="n">poems</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ul&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s2">&quot;o-graphBlocks o-graphBlocks_matrix o-graphBlocks_3up@small o-graphBlocks_4up@medium o-graphBlocks_matrix_obscuredAfter12&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+<span class="n">url_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poem</span> <span class="ow">in</span> <span class="n">poems</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">url_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">hardy_poems_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">hardy_poems_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scrape_poem</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">hardy_poems</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">poem</span> <span class="ow">in</span> <span class="n">hardy_poems_list</span><span class="p">:</span>
+    <span class="n">poem</span> <span class="o">=</span> <span class="n">poem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">poem</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z])&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot; \1&quot;</span><span class="p">,</span> <span class="n">poem</span><span class="p">)</span>
+    <span class="n">hardy_poems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poem</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">hardy</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">hardy_poems</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;poems&#39;</span><span class="p">])</span>
+<span class="n">hardy</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Hardy&#39;</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">hardy</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>poems</th>
+      <th>author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>I  When moiling seems at cease  In the vague ...</td>
+      <td>Hardy</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>( On the  Signing of the  Armistice, 11  Nov. ...</td>
+      <td>Hardy</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Had  I but lived a hundred years ago  I might...</td>
+      <td>Hardy</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>(in  Memoriam  F.  W.  G.)  Orion swung southw...</td>
+      <td>Hardy</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>You did not come,  And marching  Time drew on...</td>
+      <td>Hardy</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>The three dataframes will now be combined into one using the concatenate function in Pandas.</p>
+<div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">milton</span><span class="p">,</span><span class="n">wordsworth</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">final</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">hardy</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">final</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>poems</th>
+      <th>author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Blest pair of Sirens, pledges of Heav'ns joy, ...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Hail native language, that by sinews weak Dids...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Hence vain deluding Joys, The brood of Folly w...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Hence loathed Melancholy, Of Cerberus, and bla...</td>
+      <td>Milton</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Yet once more, O ye laurels, and once more Ye ...</td>
+      <td>Milton</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><span class="n">final</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;poemsfinal.csv&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>It's now time to prepare the dataframe mapper and classification model for our pipeline. I begin by defining my X and y values, as well as performing a test train split with a test size of 40% and a random state of FiveThirtyEight.</p>
+<div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">final</span><span class="p">[[</span><span class="s1">&#39;poems&#39;</span><span class="p">]]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">final</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">]</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.40</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">538</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Below is a custom fuction that will take in each poem as an input, and perform serveral operations on top of it. This process with convert all text to lower case, tokenize the words in each poem, remove the stopwords, stem the remaining words, and eventually put the words back together into a string.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">poem_to_tokens</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+    <span class="n">lower_case</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">retokenizer</span> <span class="o">=</span> <span class="n">RegexpTokenizer</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">)</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">retokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">lower_case</span><span class="p">)</span>
+    <span class="n">stops</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">))</span>
+    <span class="n">meaningful_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">stops</span><span class="p">]</span>
+    <span class="n">stemmer</span> <span class="o">=</span> <span class="n">PorterStemmer</span><span class="p">()</span>
+    <span class="n">stemmed_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">stemmer</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">meaningful_words</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stemmed_words</span><span class="p">)</span>
+</pre></div>
+
+
+<p>I'll be using Logistic Regression for this classification task.</p>
+<div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The mapper will perform the previously defined poem_to_tokens function on top of each poem in the dataframe, and then the CountVectorizer in addition.</p>
+<div class="highlight"><pre><span></span><span class="n">mapper</span> <span class="o">=</span> <span class="n">DataFrameMapper</span><span class="p">([</span>
+    <span class="p">(</span><span class="s1">&#39;poems&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">poem_to_tokens</span><span class="p">),</span> <span class="n">CountVectorizer</span><span class="p">()])</span>
+<span class="p">],</span> <span class="n">df_out</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>I will now feed the model and mapper I have defined into a pipeline, and then fit and score my model. This will tell me exactly how accurate my classification model is.</p>
+<div class="highlight"><pre><span></span><span class="n">pipe</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">sunnychahal</span><span class="o">/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">sklearn</span><span class="o">/</span><span class="n">linear_model</span><span class="o">/</span><span class="n">logistic</span><span class="p">.</span><span class="n">py</span><span class="p">:</span><span class="mi">433</span><span class="p">:</span> <span class="n">FutureWarning</span><span class="p">:</span> <span class="k">Default</span> <span class="n">solver</span> <span class="n">will</span> <span class="n">be</span> <span class="n">changed</span> <span class="k">to</span> <span class="s1">&#39;lbfgs&#39;</span> <span class="k">in</span> <span class="mi">0</span><span class="p">.</span><span class="mi">22</span><span class="p">.</span> <span class="n">Specify</span> <span class="n">a</span> <span class="n">solver</span> <span class="k">to</span> <span class="n">silence</span> <span class="n">this</span> <span class="n">warning</span><span class="p">.</span>
+  <span class="n">FutureWarning</span><span class="p">)</span>
+<span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">sunnychahal</span><span class="o">/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="p">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">sklearn</span><span class="o">/</span><span class="n">linear_model</span><span class="o">/</span><span class="n">logistic</span><span class="p">.</span><span class="n">py</span><span class="p">:</span><span class="mi">460</span><span class="p">:</span> <span class="n">FutureWarning</span><span class="p">:</span> <span class="k">Default</span> <span class="n">multi_class</span> <span class="n">will</span> <span class="n">be</span> <span class="n">changed</span> <span class="k">to</span> <span class="s1">&#39;auto&#39;</span> <span class="k">in</span> <span class="mi">0</span><span class="p">.</span><span class="mi">22</span><span class="p">.</span> <span class="n">Specify</span> <span class="n">the</span> <span class="n">multi_class</span> <span class="k">option</span> <span class="k">to</span> <span class="n">silence</span> <span class="n">this</span> <span class="n">warning</span><span class="p">.</span>
+  <span class="ss">&quot;this warning.&quot;</span><span class="p">,</span> <span class="n">FutureWarning</span><span class="p">)</span>
+
+
+
+
+
+<span class="n">Pipeline</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>
+     <span class="n">steps</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;dataframemapper&#39;</span><span class="p">,</span> <span class="n">DataFrameMapper</span><span class="p">(</span><span class="k">default</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">df_out</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;poems&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="k">None</span><span class="p">),</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">analyzer</span><span class="o">=</span><span class="s1">&#39;word&#39;</span><span class="p">,</span> <span class="nb">binary</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="n">decode_error</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=&lt;</span><span class="k">class</span> <span class="s1">&#39;numpy.int64&#39;</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="k">input</span><span class="o">=</span><span class="s1">&#39;content&#39;</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="k">True</span><span class="p">,</span> <span class="n">ma</span><span class="p">...</span><span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s1">&#39;warn&#39;</span><span class="p">,</span>
+          <span class="n">tol</span><span class="o">=</span><span class="mi">0</span><span class="p">.</span><span class="mi">0001</span><span class="p">,</span> <span class="k">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">warm_start</span><span class="o">=</span><span class="k">False</span><span class="p">))])</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">1.0</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">0.8113207547169812</span>
+</pre></div>
+
+
+<p>It appears the accuracy score is quite respectable. Not quite where I'd like it to be, but not terrible for a first attempt. Finally, I will create a new dataframe with just one entry to predict the author of the poem that's being fed into the model.</p>
+<p>I will be using Song on May Morning by John Milton.</p>
+<div class="highlight"><pre><span></span><span class="n">new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;poems&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NOW the bright morning-star, Day’s harbinger, Comes dancing from the East, and leads with her The flowery May, who from her green lap throws The yellow cowslip and the pale primrose. Hail, bounteous May, that dost inspire Mirth, and youth, and warm desire! Woods and groves are of thy dressing; Hill and dale doth boast thy blessing. Thus we salute thee with our early song, And welcome thee, and wish thee long.&quot;</span><span class="p">]})</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">array([&#39;Milton&#39;], dtype=object)</span>
+</pre></div>
+
+
+<p>Not too shabby, but the model could certainly use more complexity and nuance. So that was a basic NLP classification model that accepts a poem, and hopefully returns the name of its author.</p>
+                <div class="clear"></div>
+
+                <div class="info">
+                    <a href="./blog4.html">posted at 13:10</a>
+                </div>
+            </article>
+            <div class="clear"></div>
+            <footer>
+                <p>
+                <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
+                &middot;
+                Powered by <a href="http://getpelican.com">Pelican</a>
+                &middot;
+                <a href="./feeds/all.atom.xml" rel="alternate">Atom Feed</a>
+            </footer>
+        </div>
+        <div class="clear"></div>
+    </div>
+</body>
+</html>
