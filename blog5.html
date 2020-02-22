@@ -1,44 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-          <title>sumer - Huey</title>
-        <meta charset="utf-8" />
-        <link href="https://amanchl.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Full Atom Feed" />
-        <link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Categories Atom Feed" />
-
-
-
-
-
+ <title>Huey</title>
+ <!-- Latest compiled and minified CSS -->
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+ <div class="container">
+  <h1><a href=".">sumer</a></h1>
+ </div>
 </head>
-
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="./">sumer <strong></strong></a></h1>
-        </header><!-- /#banner -->
-        <nav id="menu"><ul>
-            <li class="active"><a href="./category/misc.html">misc</a></li>
-        </ul></nav><!-- /#menu -->
-<section id="content" class="body">
-  <header>
-    <h2 class="entry-title">
-      <a href="./blog5.html" rel="bookmark"
-         title="Permalink to Huey">Huey</a></h2>
- 
-  </header>
-  <footer class="post-info">
-    <time class="published" datetime="2020-02-02T07:40:00-05:00">
-      Sun 02 February 2020
-    </time>
-    <address class="vcard author">
-      By           <a class="url fn" href="./author/aman-chahal.html">Aman Chahal</a>
-    </address>
-    <div class="category">
-        Category: <a href="./category/misc.html">misc</a>
-    </div>
-  </footer><!-- /.post-info -->
-  <div class="entry-content">
-    <p>Today, I'll be covering a lightweight task queue package for Python called Huey. It's a neat little package for task execution at a given time or a specified delay. It's also quite handy for scheduling recurring tasks, automatically retrying failed tasks, as well as a host of other nifty features.</p>
+<body>
+ <div class="container">
+<div class="row">
+ <div class="col-md-8">
+  <h3>Huey</h3>
+  <label>2020-02-02</label>
+  <p>Today, I'll be covering a lightweight task queue package for Python called Huey. It's a neat little package for task execution at a given time or a specified delay. It's also quite handy for scheduling recurring tasks, automatically retrying failed tasks, as well as a host of other nifty features.</p>
 <p>For this particular post, I'll be grabbing Apple stock prices in real time, and using Huey to update my data in real time. For this purpose, I will be using the Yahoo Finance API.</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">yfinance</span> <span class="k">as</span> <span class="nn">yf</span>
 </pre></div>
@@ -178,13 +154,8 @@
 
 <div class="highlight"><pre><span></span><span class="err">[*********************100%***********************]  1 of 1 completed</span>
 </pre></div>
-  </div><!-- /.entry-content -->
-</section>
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
-                which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
-        </footer><!-- /#contentinfo -->
+ </div>
+</div>
+ </div>
 </body>
 </html>

@@ -1,44 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-          <title>sumer - Renewable Energy and Ugly Data</title>
-        <meta charset="utf-8" />
-        <link href="https://amanchl.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Full Atom Feed" />
-        <link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Categories Atom Feed" />
-
-
-
-
-
+ <title>Renewable Energy and Ugly Data</title>
+ <!-- Latest compiled and minified CSS -->
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+ <div class="container">
+  <h1><a href=".">sumer</a></h1>
+ </div>
 </head>
-
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="./">sumer <strong></strong></a></h1>
-        </header><!-- /#banner -->
-        <nav id="menu"><ul>
-            <li class="active"><a href="./category/misc.html">misc</a></li>
-        </ul></nav><!-- /#menu -->
-<section id="content" class="body">
-  <header>
-    <h2 class="entry-title">
-      <a href="./blog3.html" rel="bookmark"
-         title="Permalink to Renewable Energy and Ugly Data">Renewable Energy and Ugly Data</a></h2>
- 
-  </header>
-  <footer class="post-info">
-    <time class="published" datetime="2020-01-04T11:10:00-05:00">
-      Sat 04 January 2020
-    </time>
-    <address class="vcard author">
-      By           <a class="url fn" href="./author/aman-chahal.html">Aman Chahal</a>
-    </address>
-    <div class="category">
-        Category: <a href="./category/misc.html">misc</a>
-    </div>
-  </footer><!-- /.post-info -->
-  <div class="entry-content">
-    <h1>Renewable Energy and Ugly Data</h1>
+<body>
+ <div class="container">
+<div class="row">
+ <div class="col-md-8">
+  <h3>Renewable Energy and Ugly Data</h3>
+  <label>2020-01-04</label>
+  <h1>Renewable Energy and Ugly Data</h1>
 <p>In this post, we'll be borrowing a somewhat unflattering stacked bar chart from <a href="https://www.bloomberg.com/opinion/articles/2019-10-23/coal-is-in-retreat-worldwide-as-renewable-energy-costs-drop">this</a> particular Bloomberg article on the decline of coal power in the developed world as well as developing. We will be using Altair for this visualization exercise.</p>
 <p><img alt="" src="https://i.imgur.com/6lWl5SU.png"></p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -261,13 +237,8 @@
     }
   })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300, "strokeOpacity": 0}, "axis": {"grid": false}, "legend": {"clipHeight": 25, "labelFontSize": 15, "titleFontSize": 15}}, "data": {"name": "data-756e8efff7e925bd041eca43b6e8db24"}, "mark": "bar", "encoding": {"color": {"type": "nominal", "field": "Country", "legend": {"orient": "right", "title": "Country"}}, "tooltip": [{"type": "nominal", "field": "Country"}, {"type": "quantitative", "field": "Capacity"}], "x": {"type": "nominal", "axis": {"labelAngle": 0, "title": null}, "field": "Year"}, "y": {"type": "quantitative", "axis": {"title": null, "values": [0, 5, 10, 15]}, "field": "Capacity", "scale": {"domain": [0, 15]}}}, "height": 500, "title": "New Coal Generator (in Megawatts) Construction in South East Asia By Year", "width": 800, "$schema": "https://vega.github.io/schema/vega-lite/v4.0.0.json", "datasets": {"data-756e8efff7e925bd041eca43b6e8db24": [{"Country": "Cambodia", "Year": "2015", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2015", "Capacity": 0.7}, {"Country": "Malaysia", "Year": "2015", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2015", "Capacity": 0.8}, {"Country": "Thailand", "Year": "2015", "Capacity": 0.0}, {"Country": "Vietnam", "Year": "2015", "Capacity": 3.6}, {"Country": "Cambodia", "Year": "2016", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2016", "Capacity": 6.2}, {"Country": "Malaysia", "Year": "2016", "Capacity": 2.0}, {"Country": "Phillippines", "Year": "2016", "Capacity": 1.0}, {"Country": "Thailand", "Year": "2016", "Capacity": 0.6}, {"Country": "Vietnam", "Year": "2016", "Capacity": 3.1}, {"Country": "Cambodia", "Year": "2017", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2017", "Capacity": 6.1}, {"Country": "Malaysia", "Year": "2017", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2017", "Capacity": 0.1}, {"Country": "Thailand", "Year": "2017", "Capacity": 0.1}, {"Country": "Vietnam", "Year": "2017", "Capacity": 0.0}, {"Country": "Cambodia", "Year": "2018", "Capacity": 0.1}, {"Country": "Indonesia", "Year": "2018", "Capacity": 1.1}, {"Country": "Malaysia", "Year": "2018", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2018", "Capacity": 0.0}, {"Country": "Thailand", "Year": "2018", "Capacity": 0.0}, {"Country": "Vietnam", "Year": "2018", "Capacity": 1.5}, {"Country": "Cambodia", "Year": "2019", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2019", "Capacity": 1.5}, {"Country": "Malaysia", "Year": "2019", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2019", "Capacity": 0.0}, {"Country": "Thailand", "Year": "2019", "Capacity": 0.0}, {"Country": "Vietnam", "Year": "2019", "Capacity": 0.0}]}}, {"mode": "vega-lite"});
 </script>
-  </div><!-- /.entry-content -->
-</section>
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
-                which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
-        </footer><!-- /#contentinfo -->
+ </div>
+</div>
+ </div>
 </body>
 </html>
