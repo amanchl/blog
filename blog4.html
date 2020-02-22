@@ -1,44 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+        <title>Natural Poem Processing</title>
         <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>sumer | Natural Poem Processing</title>
-    <link rel="shortcut icon" type="image/png" href="./favicon.png">
-    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-    <link href="https://amanchl.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Full Atom Feed" />
-    <link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Categories Atom Feed" />
-    <link rel="stylesheet" href="./theme/css/screen.css" type="text/css" />
-    <link rel="stylesheet" href="./theme/css/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="./theme/css/print.css" type="text/css" media="print" />
-    <meta name="generator" content="Pelican" />
-    <meta name="description" content="" />
-    <meta name="author" content="Aman Chahal" />
+        <link href="https://amanchl.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Full Atom Feed" />
+        <link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate" title="sumer Categories Atom Feed" />
+
+
+        <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+        <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="./theme/gumby.css" />
+        <link rel="stylesheet" type="text/css" href="./theme/style.css" />
+        <link rel="stylesheet" type="text/css" href="./theme/pygment.css" />
+
+        <script src="./theme/js/libs/modernizr-2.6.2.min.js"></script>
+
+
+
 
 </head>
-<body>
-    <header>
-        <nav>
-            <ul>
+
+<body id="index" class="home">
+
+
+    <div class="container">
+
+        <div class="row">
+
+          <header id="banner" class="body">
+                  <h1><a href="./">sumer <strong></strong></a></h1>
+          </header><!-- /#banner -->
+
+            <div id="navigation" class="navbar row">
+              <a href="#" gumby-trigger="#navigation &gt; ul" class="toggle"><i class="icon-menu"></i></a>
+             
+              <ul class="columns">
                 <li><a href="./">Home</a></li>
-            </ul>
-        </nav>
-        <div class="header_box">
-            <h1><a href="./">sumer</a></h1>
-        </div>
-    </header>
-    <div id="wrapper">
-        <div id="content">            <h4 class="date">Jan 25, 2020</h4>
 
-            <article class="post">
-                <h2 class="title">
-                    <a href="./blog4.html" rel="bookmark" title="Permanent Link to &quot;Natural Poem Processing&quot;">Natural Poem Processing</a>
-                </h2>
 
-                
-                
+              </ul>
+            </div>
 
-                <h1>Natural Poem Processing</h1>
+<section id="content" class="body">
+
+   <div class="row">
+        <div class="eleven columns">
+
+
+            <header>
+              <h2 class="entry-title">
+                <a href="./blog4.html" rel="bookmark"
+                   title="Permalink to Natural Poem Processing">Natural Poem Processing</a></h2>
+           
+            </header>
+            <footer class="post-info">
+              <abbr class="published" title="2020-01-25T13:10:00-05:00">
+                Sat 25 January 2020
+              </abbr>
+              <address class="vcard author">By 
+                <a class="url fn" href="./author/aman-chahal.html"> Aman Chahal</a>
+              </address>
+            </footer><!-- /.post-info -->
+            <div class="entry-content">
+              <h1>Natural Poem Processing</h1>
 <p>In this post, I will be scraping the works of three famous poets--William Wordsworth, John Milton, and Thomas Hardy--and running them through a natural language processing algorithm with the goal of identifying the author by feeding a poem into said algorithm.</p>
 <p>Let's begin by importing the requisite packages.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gazpacho</span> <span class="kn">import</span> <span class="n">get</span><span class="p">,</span> <span class="n">Soup</span>
@@ -574,23 +600,65 @@
 
 
 <p>Not too shabby, but the model could certainly use more complexity and nuance. So that was a basic NLP classification model that accepts a poem, and hopefully returns the name of its author.</p>
-                <div class="clear"></div>
+            </div><!-- /.entry-content -->
 
-                <div class="info">
-                    <a href="./blog4.html">posted at 13:10</a>
-                </div>
-            </article>
-            <div class="clear"></div>
-            <footer>
-                <p>
-                <a href="https://github.com/jody-frankowski/blue-penguin">Blue Penguin</a> Theme
-                &middot;
-                Powered by <a href="http://getpelican.com">Pelican</a>
-                &middot;
-                <a href="./feeds/all.atom.xml" rel="alternate">Atom Feed</a>
-            </footer>
-        </div>
-        <div class="clear"></div>
+
+        </div><!-- /.eleven.columns -->
+
+<div class="three columns">
+
+  <h4>Pages</h4>
+
+  <ul>
+
+  
+
+
+
+
+
+</div> </div><!-- /.row -->
+
+
+</section>
+
+       </div><!-- /.row -->
+    </div><!-- /.container -->
+
+
+       <div class="container.nopad bg">
+
+    
+        <footer id="credits" class="row">
+          <div class="seven columns left-center">
+
+                   <address id="about" class="vcard body">
+                    Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                    which takes great advantage of <a href="http://python.org">Python</a>.
+                    <br />
+                    Based on the <a target="_blank" href="http://gumbyframework.com">Gumby Framework</a>
+                    </address>
+          </div>
+
+
+          <div class="seven columns">
+            <div class="row">
+              <ul class="socbtns">
+
+
+
+
+
+              </ul>
+            </div>
+          </div>
+        </footer>
+
     </div>
+
+
+  <script src="./theme/js/libs/jquery-1.9.1.min.js"></script>
+  <script src="./theme/js/libs/gumby.min.js"></script>
+  <script src="./theme/js/plugins.js"></script>
 </body>
 </html>
