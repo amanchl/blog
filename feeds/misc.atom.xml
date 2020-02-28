@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>sumer - misc</title><link href="https://amanchl.github.io/blog/" rel="alternate"></link><link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" rel="self"></link><id>https://amanchl.github.io/blog/</id><updated>2020-02-22T11:00:00-05:00</updated><entry><title>Scraping and IDG</title><link href="https://amanchl.github.io/blog/blog6.html" rel="alternate"></link><published>2020-02-22T11:00:00-05:00</published><updated>2020-02-22T11:00:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-02-22:/blog/blog6.html</id><summary type="html">&lt;h1&gt;Scraping and Preparing Images for Deep Learning Models&lt;/h1&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>sumer - misc</title><link href="https://amanchl.github.io/blog/" rel="alternate"></link><link href="https://amanchl.github.io/blog/feeds/misc.atom.xml" rel="self"></link><id>https://amanchl.github.io/blog/</id><updated>2020-02-22T11:00:00-05:00</updated><entry><title>Scraping and IDG</title><link href="https://amanchl.github.io/blog/blog4.html" rel="alternate"></link><published>2020-02-22T11:00:00-05:00</published><updated>2020-02-22T11:00:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-02-22:/blog/blog4.html</id><summary type="html">&lt;h1&gt;Scraping and Preparing Images for Deep Learning Models&lt;/h1&gt;
 &lt;p&gt;Today, I'll be talking about my Capstone Project at General Assembly, and the tools and processes involved in sourcing the images, as well as importing, preprocessing, and augmenting them before throwing them into my model. So let's begin with the very first …&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Scraping and Preparing Images for Deep Learning Models&lt;/h1&gt;
 &lt;p&gt;Today, I'll be talking about my Capstone Project at General Assembly, and the tools and processes involved in sourcing the images, as well as importing, preprocessing, and augmenting them before throwing them into my model. So let's begin with the very first part of the project: web scraping.&lt;/p&gt;
 &lt;h2&gt;Web Scraping&lt;/h2&gt;
@@ -132,148 +132,7 @@
 
 
 &lt;p&gt;&lt;img src='https://i.imgur.com/IfLhQZz.png' width="300"&gt;&lt;/p&gt;
-&lt;p&gt;And that's about it. That's how your scrape, import, preprocess, split, and augment image data in Python. Hope this post was informative!&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Huey</title><link href="https://amanchl.github.io/blog/blog5.html" rel="alternate"></link><published>2020-02-02T07:40:00-05:00</published><updated>2020-02-02T07:40:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-02-02:/blog/blog5.html</id><summary type="html">&lt;h1&gt;Huey&lt;/h1&gt;
-&lt;p&gt;Today, I'll be covering a lightweight task queue package for Python called Huey. It's a neat little package for task execution at a given time or a specified delay. It's also quite handy for scheduling recurring tasks, automatically retrying failed tasks, as well as a host of other nifty …&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Huey&lt;/h1&gt;
-&lt;p&gt;Today, I'll be covering a lightweight task queue package for Python called Huey. It's a neat little package for task execution at a given time or a specified delay. It's also quite handy for scheduling recurring tasks, automatically retrying failed tasks, as well as a host of other nifty features.&lt;/p&gt;
-&lt;p&gt;For this particular post, I'll be grabbing Apple stock prices in real time, and using Huey to update my data in real time. For this purpose, I will be using the Yahoo Finance API.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;yfinance&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;yf&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;I'll now import the requisite packages and instantiate Huey. For this example, I will be using the Immediate Mode instead of a local Redis server or SQLite, but I will be updating this post later on and cover those features as well. In immediate mode, Huey will execute task functions immediately rather than queueing them, but it will preserve the behaviors  of a dedicated consumer process (not covered today).&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;huey&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;RedisHuey&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;crontab&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;huey&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;crontab&lt;/span&gt;
-
-&lt;span class="n"&gt;huey&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;RedisHuey&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my-app&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;immediate&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;Here, I will grab some Apple stocks data for the last 7 days on a refresh interval of 1 minute, and put it into a Pandas DataFrame, which I will iterate over with new data using Huey.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;yf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;download&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tickers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;AAPL&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;span class="n"&gt;period&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;7d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;span class="n"&gt;interval&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[*********************100%***********************]  1 of 1 completed&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tail&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div&gt;
-&lt;style scoped&gt;
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-&lt;/style&gt;
-&lt;table border="1" class="dataframe"&gt;
-  &lt;thead&gt;
-    &lt;tr style="text-align: right;"&gt;
-      &lt;th&gt;&lt;/th&gt;
-      &lt;th&gt;Open&lt;/th&gt;
-      &lt;th&gt;High&lt;/th&gt;
-      &lt;th&gt;Low&lt;/th&gt;
-      &lt;th&gt;Close&lt;/th&gt;
-      &lt;th&gt;Adj Close&lt;/th&gt;
-      &lt;th&gt;Volume&lt;/th&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;th&gt;Datetime&lt;/th&gt;
-      &lt;th&gt;&lt;/th&gt;
-      &lt;th&gt;&lt;/th&gt;
-      &lt;th&gt;&lt;/th&gt;
-      &lt;th&gt;&lt;/th&gt;
-      &lt;th&gt;&lt;/th&gt;
-      &lt;th&gt;&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;th&gt;2020-01-31 15:55:00-05:00&lt;/th&gt;
-      &lt;td&gt;309.940002&lt;/td&gt;
-      &lt;td&gt;310.049988&lt;/td&gt;
-      &lt;td&gt;309.640015&lt;/td&gt;
-      &lt;td&gt;309.649994&lt;/td&gt;
-      &lt;td&gt;309.649994&lt;/td&gt;
-      &lt;td&gt;240384&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;th&gt;2020-01-31 15:56:00-05:00&lt;/th&gt;
-      &lt;td&gt;309.640015&lt;/td&gt;
-      &lt;td&gt;309.670013&lt;/td&gt;
-      &lt;td&gt;309.170013&lt;/td&gt;
-      &lt;td&gt;309.429993&lt;/td&gt;
-      &lt;td&gt;309.429993&lt;/td&gt;
-      &lt;td&gt;327785&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;th&gt;2020-01-31 15:57:00-05:00&lt;/th&gt;
-      &lt;td&gt;309.429993&lt;/td&gt;
-      &lt;td&gt;309.799988&lt;/td&gt;
-      &lt;td&gt;309.369995&lt;/td&gt;
-      &lt;td&gt;309.779999&lt;/td&gt;
-      &lt;td&gt;309.779999&lt;/td&gt;
-      &lt;td&gt;248953&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;th&gt;2020-01-31 15:58:00-05:00&lt;/th&gt;
-      &lt;td&gt;309.779999&lt;/td&gt;
-      &lt;td&gt;309.809998&lt;/td&gt;
-      &lt;td&gt;309.559998&lt;/td&gt;
-      &lt;td&gt;309.649994&lt;/td&gt;
-      &lt;td&gt;309.649994&lt;/td&gt;
-      &lt;td&gt;314132&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;th&gt;2020-01-31 15:59:00-05:00&lt;/th&gt;
-      &lt;td&gt;309.640015&lt;/td&gt;
-      &lt;td&gt;309.690002&lt;/td&gt;
-      &lt;td&gt;309.130005&lt;/td&gt;
-      &lt;td&gt;309.390015&lt;/td&gt;
-      &lt;td&gt;309.390015&lt;/td&gt;
-      &lt;td&gt;578890&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Below is a function that grabs Apple stock data from Yahoo Finance and concatenates it on top of the existing data.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;stocks&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;yfinance&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;yf&lt;/span&gt;
-    &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
-    &lt;span class="n"&gt;newdata&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;yf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;download&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tickers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;AAPL&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;period&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;interval&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="n"&gt;final&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;newdata&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;final&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;This Huey periodic task function carries out the function above each minute between 9AM and 4PM Monday through Friday. The time intervals can be changed depending on the use case.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nd"&gt;@huey&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;periodic_task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;crontab&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;minute&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;*/1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;hour&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;9-16&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;day_of_week&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;1-5&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update_stocks&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
-    &lt;span class="n"&gt;stocks&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;The task has been executed below. Once a local server has been integrated into this process, the task will recur each minute and update our stock data in real time.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;update_stocks&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;[*********************100%***********************]  1 of 1 completed&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</content><category term="misc"></category></entry><entry><title>Natural Poem Processing</title><link href="https://amanchl.github.io/blog/blog4.html" rel="alternate"></link><published>2020-01-25T13:10:00-05:00</published><updated>2020-01-25T13:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-25:/blog/blog4.html</id><summary type="html">&lt;h1&gt;Natural Poem Processing&lt;/h1&gt;
+&lt;p&gt;And that's about it. That's how your scrape, import, preprocess, split, and augment image data in Python. Hope this post was informative!&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Natural Poem Processing</title><link href="https://amanchl.github.io/blog/blog3.html" rel="alternate"></link><published>2020-01-25T13:10:00-05:00</published><updated>2020-01-25T13:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-25:/blog/blog3.html</id><summary type="html">&lt;h1&gt;Natural Poem Processing&lt;/h1&gt;
 &lt;p&gt;In this post, I will be scraping the works of three famous poets--William Wordsworth, John Milton, and Thomas Hardy--and running them through a natural language processing algorithm with the goal of identifying the author by feeding a poem into said algorithm.&lt;/p&gt;
 &lt;p&gt;Let's begin by importing the requisite …&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Natural Poem Processing&lt;/h1&gt;
 &lt;p&gt;In this post, I will be scraping the works of three famous poets--William Wordsworth, John Milton, and Thomas Hardy--and running them through a natural language processing algorithm with the goal of identifying the author by feeding a poem into said algorithm.&lt;/p&gt;
@@ -810,7 +669,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Not too shabby, but the model could certainly use more complexity and nuance. So that was a basic NLP classification model that accepts a poem, and hopefully returns the name of its author.&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Renewable Energy and Ugly Data</title><link href="https://amanchl.github.io/blog/blog3.html" rel="alternate"></link><published>2020-01-04T11:10:00-05:00</published><updated>2020-01-04T11:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-04:/blog/blog3.html</id><summary type="html">&lt;h1&gt;Renewable Energy and Ugly Data&lt;/h1&gt;
+&lt;p&gt;Not too shabby, but the model could certainly use more complexity and nuance. So that was a basic NLP classification model that accepts a poem, and hopefully returns the name of its author.&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Renewable Energy and Ugly Data</title><link href="https://amanchl.github.io/blog/blog2.html" rel="alternate"></link><published>2020-01-04T11:10:00-05:00</published><updated>2020-01-04T11:10:00-05:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2020-01-04:/blog/blog2.html</id><summary type="html">&lt;h1&gt;Renewable Energy and Ugly Data&lt;/h1&gt;
 &lt;p&gt;In this post, we'll be borrowing a somewhat unflattering stacked bar chart from &lt;a href="https://www.bloomberg.com/opinion/articles/2019-10-23/coal-is-in-retreat-worldwide-as-renewable-energy-costs-drop"&gt;this&lt;/a&gt; particular Bloomberg article on the decline of coal power in the developed world as well as developing. We will be using Altair for this visualization exercise.&lt;/p&gt;
 &lt;p&gt;&lt;img alt="" src="https://i.imgur.com/6lWl5SU.png"&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
@@ -1036,7 +895,7 @@
         .then(() =&gt; displayChart(vegaEmbed));
     }
   })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300, "strokeOpacity": 0}, "axis": {"grid": false}, "legend": {"clipHeight": 25, "labelFontSize": 15, "titleFontSize": 15}}, "data": {"name": "data-756e8efff7e925bd041eca43b6e8db24"}, "mark": "bar", "encoding": {"color": {"type": "nominal", "field": "Country", "legend": {"orient": "right", "title": "Country"}}, "tooltip": [{"type": "nominal", "field": "Country"}, {"type": "quantitative", "field": "Capacity"}], "x": {"type": "nominal", "axis": {"labelAngle": 0, "title": null}, "field": "Year"}, "y": {"type": "quantitative", "axis": {"title": null, "values": [0, 5, 10, 15]}, "field": "Capacity", "scale": {"domain": [0, 15]}}}, "height": 500, "title": "New Coal Generator (in Megawatts) Construction in South East Asia By Year", "width": 800, "$schema": "https://vega.github.io/schema/vega-lite/v4.0.0.json", "datasets": {"data-756e8efff7e925bd041eca43b6e8db24": [{"Country": "Cambodia", "Year": "2015", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2015", "Capacity": 0.7}, {"Country": "Malaysia", "Year": "2015", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2015", "Capacity": 0.8}, {"Country": "Thailand", "Year": "2015", "Capacity": 0.0}, {"Country": "Vietnam", "Year": "2015", "Capacity": 3.6}, {"Country": "Cambodia", "Year": "2016", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2016", "Capacity": 6.2}, {"Country": "Malaysia", "Year": "2016", "Capacity": 2.0}, {"Country": "Phillippines", "Year": "2016", "Capacity": 1.0}, {"Country": "Thailand", "Year": "2016", "Capacity": 0.6}, {"Country": "Vietnam", "Year": "2016", "Capacity": 3.1}, {"Country": "Cambodia", "Year": "2017", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2017", "Capacity": 6.1}, {"Country": "Malaysia", "Year": "2017", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2017", "Capacity": 0.1}, {"Country": "Thailand", "Year": "2017", "Capacity": 0.1}, {"Country": "Vietnam", "Year": "2017", "Capacity": 0.0}, {"Country": "Cambodia", "Year": "2018", "Capacity": 0.1}, {"Country": "Indonesia", "Year": "2018", "Capacity": 1.1}, {"Country": "Malaysia", "Year": "2018", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2018", "Capacity": 0.0}, {"Country": "Thailand", "Year": "2018", "Capacity": 0.0}, {"Country": "Vietnam", "Year": "2018", "Capacity": 1.5}, {"Country": "Cambodia", "Year": "2019", "Capacity": 0.0}, {"Country": "Indonesia", "Year": "2019", "Capacity": 1.5}, {"Country": "Malaysia", "Year": "2019", "Capacity": 0.0}, {"Country": "Phillippines", "Year": "2019", "Capacity": 0.0}, {"Country": "Thailand", "Year": "2019", "Capacity": 0.0}, {"Country": "Vietnam", "Year": "2019", "Capacity": 0.0}]}}, {"mode": "vega-lite"});
-&lt;/script&gt;</content><category term="misc"></category></entry><entry><title>Seaborn</title><link href="https://amanchl.github.io/blog/blog2.html" rel="alternate"></link><published>2019-09-12T11:35:00-04:00</published><updated>2019-09-12T11:35:00-04:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2019-09-12:/blog/blog2.html</id><summary type="html">&lt;h1&gt;Titanic Status: Seaborn&lt;/h1&gt;
+&lt;/script&gt;</content><category term="misc"></category></entry><entry><title>Seaborn</title><link href="https://amanchl.github.io/blog/blog1.html" rel="alternate"></link><published>2019-09-12T11:35:00-04:00</published><updated>2019-09-12T11:35:00-04:00</updated><author><name>Aman Chahal</name></author><id>tag:amanchl.github.io,2019-09-12:/blog/blog1.html</id><summary type="html">&lt;h1&gt;Titanic Status: Seaborn&lt;/h1&gt;
 &lt;p&gt;Data visualization is a keystone of data science, and can serve as a powerful tool to communicate findings and insights in a digestible manner to the layperson. It can also help data scientists to uncover hidden and less obvious patterns and insight through exploratory analysis.&lt;/p&gt;
 &lt;p&gt;While the …&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Titanic Status: Seaborn&lt;/h1&gt;
 &lt;p&gt;Data visualization is a keystone of data science, and can serve as a powerful tool to communicate findings and insights in a digestible manner to the layperson. It can also help data scientists to uncover hidden and less obvious patterns and insight through exploratory analysis.&lt;/p&gt;
